@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Client Follow Up</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #eef1f2;
+    --surface: #ffffff;
+    --surface-2: #f6f8f9;
+    --border: #d7dee1;
+    --text: #17262c;
+    --text-soft: #52666e;
+    --text-faint: #8397a0;
+    --accent: #1f4b56;
+    --accent-soft: #e4edee;
+    --accent-strong: #143840;
+    --gold: #b3791f;
+    --gold-soft: #f6ead2;
+    --success: #2f7d52;
+    --success-soft: #e3f1e8;
+    --warn: #b8720c;
+    --warn-soft: #fbead0;
+    --danger: #b6412c;
+    --danger-soft: #f8e2dc;
+    --info: #3b6ea5;
+    --info-soft: #e2ecf6;
+    --neutral: #7a8b92;
+    --neutral-soft: #e9edee;
+    --shadow: 0 1px 2px rgba(20, 40, 46, 0.06), 0 8px 24px -12px rgba(20, 40, 46, 0.18);
+    --radius: 10px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1719; --surface: #16211f; --surface-2: #1b2826; --border: #2b3b3a;
+      --text: #e7eeee; --text-soft: #a9bcbb; --text-faint: #728484;
+      --accent: #6fb3ac; --accent-soft: #1c3532; --accent-strong: #a4d3cc;
+      --gold: #dcab5c; --gold-soft: #3a2f1a; --success: #6fbd8f; --success-soft: #17332390;
+      --warn: #e0a94f; --warn-soft: #3a2c12; --danger: #e17f6a; --danger-soft: #3a1f18;
+      --info: #85aede; --info-soft: #172a3a; --neutral: #93a3a2; --neutral-soft: #22302f;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1719; --surface: #16211f; --surface-2: #1b2826; --border: #2b3b3a;
+    --text: #e7eeee; --text-soft: #a9bcbb; --text-faint: #728484;
+    --accent: #6fb3ac; --accent-soft: #1c3532; --accent-strong: #a4d3cc;
+    --gold: #dcab5c; --gold-soft: #3a2f1a; --success: #6fbd8f; --success-soft: #17332390;
+    --warn: #e0a94f; --warn-soft: #3a2c12; --danger: #e17f6a; --danger-soft: #3a1f18;
+    --info: #85aede; --info-soft: #172a3a; --neutral: #93a3a2; --neutral-soft: #22302f;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body {
+    color: var(--text);
+    font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; text-wrap: balance; margin: 0; }
+  button, select, input, textarea { font-family: inherit; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 22px 24px 64px; }
+
+  /* ---------- login gate ---------- */
+  .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .gate-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 32px 28px; text-align: center; }
+  .gate-card .brandmark { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(155deg, var(--accent), var(--accent-strong)); display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 16px; box-shadow: var(--shadow); }
+  .gate-card h1 { font-size: 21px; font-weight: 600; margin-bottom: 4px; }
+  .gate-card p { font-size: 13px; color: var(--text-soft); margin: 0 0 20px; }
+  .gate-card input[type="password"] { width: 100%; padding: 11px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 14px; text-align: center; letter-spacing: 0.04em; }
+  .gate-card .btn { width: 100%; margin-top: 12px; justify-content: center; }
+  .gate-error { color: var(--danger); font-size: 12.5px; margin-top: 10px; min-height: 16px; }
+  .gate-hint { font-size: 11.5px; color: var(--text-faint); margin-top: 18px; }
+
+  /* ---------- header ---------- */
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+  .brandline { display: flex; align-items: center; gap: 12px; }
+  .brandmark { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(155deg, var(--accent), var(--accent-strong)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 19px; flex: none; box-shadow: var(--shadow); }
+  .titles h1 { font-size: 23px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .titles p { margin: 3px 0 0; font-size: 13px; color: var(--text-soft); }
+
+  .whoami { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 5px 6px 5px 14px; box-shadow: var(--shadow); }
+  .whoami label { font-size: 12px; color: var(--text-soft); white-space: nowrap; }
+  .whoami input { border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--text); width: 118px; outline: none; }
+  .whoami .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex: none; }
+  .whoami .dot.off { background: var(--neutral); }
+  .whoami .logout { border: none; background: transparent; color: var(--text-faint); cursor: pointer; font-size: 12px; padding: 4px 6px; }
+  .whoami .logout:hover { color: var(--danger); }
+
+  /* ---------- kpis ---------- */
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 18px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .kpi .n { font-size: 26px; font-weight: 700; font-family: 'Fraunces', serif; line-height: 1; }
+  .kpi .l { margin-top: 6px; font-size: 12px; color: var(--text-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi.accent-total .n { color: var(--accent); }
+  .kpi.accent-upsell .n { color: var(--gold); }
+  .kpi.accent-risk .n { color: var(--danger); }
+  .kpi.accent-attn .n { color: var(--warn); }
+  .kpi.accent-pending .n { color: var(--info); }
+
+  /* ---------- toolbar ---------- */
+  .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .toolbar input[type="search"] { flex: 1 1 220px; min-width: 180px; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13.5px; }
+  select.filter { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); font-size: 13px; }
+  .toolbar .spacer { flex: 1 1 auto; min-width: 0; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+  .btn.ghost { border-color: transparent; background: transparent; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .toggle-chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
+  .toggle-chip.on { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+
+  .banner { display: flex; align-items: center; gap: 10px; background: var(--gold-soft); border: 1px solid var(--gold); color: var(--accent-strong); border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; }
+  .banner strong { font-weight: 700; }
+  .banner .btn { margin-left: auto; }
+  .banner.offline { background: var(--danger-soft); border-color: var(--danger); }
+
+  /* ---------- table ---------- */
+  .tablewrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .scrollx { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 1180px; }
+  thead th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 700; padding: 11px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 13.5px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+  .client-cell .name { font-weight: 700; color: var(--text); cursor: pointer; }
+  .client-cell .name:hover { color: var(--accent); text-decoration: underline; }
+  .client-cell .sub { font-size: 12px; color: var(--text-faint); margin-top: 1px; }
+  .ex-tag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gold); background: var(--gold-soft); border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: middle; }
+  .acct { font-size: 12.5px; color: var(--text-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .pill-select { appearance: none; -webkit-appearance: none; border: 1px solid transparent; border-radius: 999px; padding: 5px 26px 5px 11px; font-size: 12.5px; font-weight: 700; cursor: pointer; background-repeat: no-repeat; background-position: right 8px center; background-size: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); }
+  .pill-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .brandtag { font-size: 12px; color: var(--text-soft); }
+  .pkgtag { font-size: 12.5px; font-weight: 600; }
+  .pkgtag .prem { display: block; font-size: 11px; font-weight: 500; color: var(--text-faint); margin-top: 1px; }
+  .ins-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
+  .ins-badge.on { background: var(--success-soft); color: var(--success); }
+  .ins-badge.off { background: var(--neutral-soft); color: var(--neutral); }
+
+  .attn-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 7px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--text-faint); }
+  .attn-btn.on { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+
+  .next-action { font-size: 12.5px; color: var(--text-soft); }
+  .next-action.overdue { color: var(--danger); font-weight: 700; }
+  .updated { font-size: 11.5px; color: var(--text-faint); }
+
+  .rowactions { display: flex; gap: 4px; justify-content: flex-end; }
+  .icon-btn { border: 1px solid transparent; background: transparent; width: 28px; height: 28px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-faint); font-size: 13px; }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+  .icon-btn.del:hover { background: var(--danger-soft); color: var(--danger); }
+
+  .empty { padding: 64px 20px; text-align: center; color: var(--text-soft); }
+  .empty .big { font-size: 34px; margin-bottom: 8px; }
+
+  /* ---------- drawer ---------- */
+  .scrim { position: fixed; inset: 0; background: rgba(10, 18, 20, 0.38); opacity: 0; pointer-events: none; transition: opacity 0.18s ease; z-index: 40; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; height: 100%; width: 420px; max-width: 92vw; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -18px 0 40px -20px rgba(0,0,0,0.35); transform: translateX(100%); transition: transform 0.22s ease; z-index: 41; display: flex; flex-direction: column; }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .drawer-head h2 { font-size: 18px; font-weight: 600; }
+  .drawer-head .icon-btn { font-size: 16px; width: 32px; height: 32px; }
+  .drawer-body { padding: 18px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-faint); }
+  .field input[type="text"], .field input[type="email"], .field input[type="date"], .field select, .field textarea { padding: 9px 10px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 13.5px; width: 100%; }
+  .field textarea { min-height: 68px; resize: vertical; font-family: inherit; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .switch-row { display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .switch-row .t { font-size: 13px; font-weight: 600; }
+  .switch { position: relative; width: 38px; height: 22px; border-radius: 999px; background: var(--neutral-soft); border: 1px solid var(--border); cursor: pointer; flex: none; }
+  .switch.on { background: var(--accent); border-color: var(--accent); }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); transition: left 0.15s ease; }
+  .switch.on::after { left: 18px; background: #fff; }
+  .drawer-foot { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
+  .drawer-foot .btn.danger-outline { border-color: var(--danger); color: var(--danger); margin-right: auto; }
+  .meta-note { font-size: 11.5px; color: var(--text-faint); }
+  .hint { font-size: 12px; color: var(--text-faint); margin-top: -4px; }
+
+  @media (max-width: 880px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .topbar { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="brandmark" id="gateFlag">📡</div>
+    <h1 id="gateTitle">Client Follow Up</h1>
+    <p id="gateSubtitle">Entrez le code d'accès de votre desk</p>
+    <input type="password" id="gateCode" placeholder="Code d'accès" autocomplete="off" />
+    <button class="btn primary" id="gateSubmit">Accéder à l'outil</button>
+    <div class="gate-error" id="gateError"></div>
+    <div class="gate-hint">Ce code vous a été communiqué par votre responsable. Il reste enregistré sur cet appareil.</div>
+  </div>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div class="topbar">
+    <div class="brandline">
+      <div class="brandmark" id="appFlag">📡</div>
+      <div class="titles">
+        <h1 id="appTitle">Client Follow Up</h1>
+        <p id="appSubtitle">Suivi clients — upsell, risques de préservation, attentions particulières &amp; attentes légales/board</p>
+      </div>
+    </div>
+    <div class="whoami">
+      <span class="dot off" id="connDot"></span>
+      <label for="agentName">Vous êtes</label>
+      <input id="agentName" type="text" placeholder="Votre prénom" />
+      <button class="logout" id="logoutBtn" title="Changer de code d'accès">⎋</button>
+    </div>
+  </div>
+
+  <div id="banners"></div>
+
+  <div class="kpis">
+    <div class="kpi accent-total"><div class="n" id="kpiTotal">0</div><div class="l">Clients suivis</div></div>
+    <div class="kpi accent-upsell"><div class="n" id="kpiUpsell">0</div><div class="l">Upsell actif</div></div>
+    <div class="kpi accent-risk"><div class="n" id="kpiRisk">0</div><div class="l">Risque présa</div></div>
+    <div class="kpi accent-attn"><div class="n" id="kpiAttn">0</div><div class="l">Attention particulière</div></div>
+    <div class="kpi accent-pending"><div class="n" id="kpiPending">0</div><div class="l">En attente MAJ</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="searchBox" placeholder="Rechercher un client, un agent, un email, un n° de compte…" />
+    <select class="filter" id="filterBrand"><option value="">Toutes les marques</option></select>
+    <select class="filter" id="filterUpsell"><option value="">Upsell — tous</option></select>
+    <select class="filter" id="filterRisk"><option value="">Risque présa — tous</option></select>
+    <select class="filter" id="filterPending"><option value="">En attente — tous</option></select>
+    <button class="toggle-chip" id="mineToggle">👤 Mes clients</button>
+    <button class="toggle-chip" id="attnToggle">🚩 Attention seulement</button>
+    <span class="spacer"></span>
+    <button class="btn primary" id="addBtn">+ Nouveau client</button>
+  </div>
+
+  <div class="tablewrap">
+    <div class="scrollx">
+      <table>
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>N° de compte</th>
+            <th>Marque</th>
+            <th>Package / Assurance</th>
+            <th>Agent</th>
+            <th>Upsell</th>
+            <th>Risque présa</th>
+            <th>⚑</th>
+            <th>En attente MAJ</th>
+            <th>Prochaine action</th>
+            <th>MAJ</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="emptyState" hidden>
+      <div class="big">🗂️</div>
+      <div><strong>Aucun client ne correspond aux filtres.</strong></div>
+      <div class="hint">Ajustez la recherche ou les filtres, ou ajoutez un nouveau client.</div>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2 id="drawerTitle">Nouveau client</h2>
+    <button class="icon-btn" id="closeDrawer">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="field"><label for="f_name">Nom du client</label><input type="text" id="f_name" placeholder="Prénom Nom" /></div>
+    <div class="field"><label for="f_email">Email</label><input type="email" id="f_email" placeholder="client@exemple.com" /></div>
+    <div class="field"><label for="f_acct">N° de compte</label><input type="text" id="f_acct" placeholder="Ex. CIS-2026-00453" /></div>
+    <div class="field-row">
+      <div class="field"><label for="f_brand">Marque</label><select id="f_brand"></select></div>
+      <div class="field"><label for="f_agent">Agent assigné</label><input type="text" id="f_agent" placeholder="Nom de l'agent" /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="f_package">Package</label><select id="f_package"></select></div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <div class="switch-row" style="padding:9px 10px;"><span class="t">Assurance souscrite</span><div class="switch" id="f_insurance"></div></div>
+      </div>
+    </div>
+    <div class="field"><label for="f_upsell">Statut upsell</label><select id="f_upsell"></select></div>
+    <div class="field"><label for="f_risk">Risque de préservation (présa)</label><select id="f_risk"></select></div>
+    <div class="switch-row"><span class="t">🚩 Attention particulière</span><div class="switch" id="f_attention"></div></div>
+    <div class="field" id="attnReasonField"><label for="f_attnreason">Motif de l'attention</label><input type="text" id="f_attnreason" placeholder="Ex. client difficile, VIP, litige…" /></div>
+    <div class="field"><label for="f_pending">En attente de mise à jour</label><select id="f_pending"></select></div>
+    <div class="field" id="pendingNoteField"><label for="f_pendingnote">Détail de l'attente</label><input type="text" id="f_pendingnote" placeholder="Ex. avenant contrat en révision board" /></div>
+    <div class="field-row">
+      <div class="field"><label for="f_nextdate">Prochaine action — date</label><input type="date" id="f_nextdate" /></div>
+      <div class="field"><label for="f_nextnote">Prochaine action — note</label><input type="text" id="f_nextnote" placeholder="Ex. relance J+3" /></div>
+    </div>
+    <div class="field"><label for="f_notes">Notes internes</label><textarea id="f_notes" placeholder="Historique, contexte, décisions…"></textarea></div>
+    <div class="meta-note" id="metaNote"></div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn danger-outline" id="deleteBtn" hidden>Supprimer</button>
+    <button class="btn ghost" id="cancelBtn">Annuler</button>
+    <button class="btn primary" id="saveBtn">Enregistrer</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var qs = new URLSearchParams(location.search);
+  var DESK = (qs.get("desk") || "en").toLowerCase();
+  var STORAGE_KEY = "cfu_code_" + DESK;
+  var AGENT_KEY = "cfu_agent_" + DESK;
+
+  var BRANDS = { vac: "Vivez Au Canada", r2c: "Relocation2Canada", cp: "CanadaProcess", cis: "CanadaCIS", coj: "CanadaOpenJobs", cvs: "CanadaVisaServices" };
+  var PACKAGES = { standard: { label: "Standard", premium: 59 }, premium: { label: "Premium", premium: 69 }, allinclusive: { label: "All-Inclusive", premium: 79 } };
+  var UPSELL = {
+    none: { label: "Aucun", fg: "var(--neutral)", bg: "var(--neutral-soft)" },
+    potential: { label: "Potentiel", fg: "var(--info)", bg: "var(--info-soft)" },
+    in_progress: { label: "En cours", fg: "var(--gold)", bg: "var(--gold-soft)" },
+    won: { label: "Conclu ✓", fg: "var(--success)", bg: "var(--success-soft)" },
+    lost: { label: "Refusé", fg: "var(--text-faint)", bg: "var(--neutral-soft)" }
+  };
+  var RISK = {
+    none: { label: "Aucun", fg: "var(--success)", bg: "var(--success-soft)" },
+    watch: { label: "À surveiller", fg: "var(--gold)", bg: "var(--gold-soft)" },
+    at_risk: { label: "À risque", fg: "var(--warn)", bg: "var(--warn-soft)" },
+    critical: { label: "Critique", fg: "var(--danger)", bg: "var(--danger-soft)" }
+  };
+  var PENDING = {
+    none: { label: "—", fg: "var(--text-faint)", bg: "var(--neutral-soft)" },
+    legal: { label: "Legal", fg: "var(--info)", bg: "var(--info-soft)" },
+    board: { label: "Board", fg: "var(--accent)", bg: "var(--accent-soft)" },
+    finance: { label: "Finance", fg: "var(--gold)", bg: "var(--gold-soft)" },
+    other: { label: "Autre", fg: "var(--text-soft)", bg: "var(--neutral-soft)" }
+  };
+
+  function fillSelect(sel, map, withEmpty) {
+    var html = "";
+    if (withEmpty) html += '<option value="">' + withEmpty + "</option>";
+    Object.keys(map).forEach(function (k) { html += '<option value="' + k + '">' + (map[k].label || map[k]) + "</option>"; });
+    sel.innerHTML = html;
+  }
+  fillSelect(document.getElementById("f_brand"), BRANDS, null);
+  fillSelect(document.getElementById("f_package"), PACKAGES, null);
+  fillSelect(document.getElementById("f_upsell"), UPSELL, null);
+  fillSelect(document.getElementById("f_risk"), RISK, null);
+  fillSelect(document.getElementById("f_pending"), PENDING, null);
+  fillSelect(document.getElementById("filterBrand"), BRANDS, "Toutes les marques");
+  fillSelect(document.getElementById("filterUpsell"), UPSELL, "Upsell — tous");
+  fillSelect(document.getElementById("filterRisk"), RISK, "Risque présa — tous");
+  fillSelect(document.getElementById("filterPending"), PENDING, "En attente — tous");
+
+  var state = { docs: [], code: null, online: true };
+  var ui = { mine: false, attn: false, editingId: null, pollTimer: null };
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function todayIso() { return new Date().toISOString().slice(0, 10); }
+  function fmtDate(iso) { if (!iso) return ""; var d = new Date(iso); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" }); }
+  function fmtRelative(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso), now = new Date(), diffH = (now - d) / 3600000;
+    if (diffH < 1) return "à l'instant";
+    if (diffH < 24) return Math.round(diffH) + " h";
+    var diffD = Math.round(diffH / 24);
+    if (diffD < 30) return diffD + " j";
+    return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "2-digit" });
+  }
+
+  // ---------------- API ----------------
+  function api(path, opts) {
+    opts = opts || {};
+    var headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+    if (state.code) headers["x-desk-code"] = state.code;
+    return fetch("/api/" + DESK + path, Object.assign({}, opts, { headers: headers })).then(function (res) {
+      if (res.status === 401) { onUnauthorized(); throw new Error("unauthorized"); }
+      if (!res.ok) throw new Error("http_" + res.status);
+      if (res.status === 204) return null;
+      return res.json();
+    });
+  }
+
+  function onUnauthorized() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    stopPolling();
+    document.getElementById("app").hidden = true;
+    document.getElementById("gate").hidden = false;
+    document.getElementById("gateError").textContent = "Code d'accès invalide ou expiré. Réessayez.";
+  }
+
+  // ---------------- gate / login ----------------
+  function loadMeta() {
+    return fetch("/api/" + DESK + "/meta").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  }
+
+  function applyMeta(meta) {
+    if (!meta) return;
+    document.getElementById("gateFlag").textContent = meta.flag || "📡";
+    document.getElementById("gateTitle").textContent = meta.appName || "Client Follow Up";
+    document.getElementById("appFlag").textContent = meta.flag || "📡";
+    document.getElementById("appTitle").textContent = meta.appName || "Client Follow Up";
+    document.title = meta.appName || "Client Follow Up";
+  }
+
+  function tryStoredCode() {
+    var stored = null;
+    try { stored = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+    if (!stored) return Promise.resolve(false);
+    return fetch("/api/" + DESK + "/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: stored }) })
+      .then(function (r) {
+        if (!r.ok) return false;
+        state.code = stored;
+        return true;
+      })
+      .catch(function () { return false; });
+  }
+
+  function submitCode() {
+    var code = document.getElementById("gateCode").value.trim();
+    var errEl = document.getElementById("gateError");
+    errEl.textContent = "";
+    if (!code) return;
+    fetch("/api/" + DESK + "/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: code }) })
+      .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+      .then(function (res) {
+        if (!res.ok) { errEl.textContent = "Code incorrect. Vérifiez auprès de votre responsable."; return; }
+        state.code = code;
+        try { localStorage.setItem(STORAGE_KEY, code); } catch (e) {}
+        enterApp();
+      })
+      .catch(function () { errEl.textContent = "Connexion au serveur impossible. Réessayez."; });
+  }
+
+  document.getElementById("gateSubmit").addEventListener("click", submitCode);
+  document.getElementById("gateCode").addEventListener("keydown", function (ev) { if (ev.key === "Enter") submitCode(); });
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    location.reload();
+  });
+
+  function enterApp() {
+    document.getElementById("gate").hidden = true;
+    document.getElementById("app").hidden = false;
+    document.getElementById("connDot").classList.remove("off");
+    refresh();
+    startPolling();
+  }
+
+  function startPolling() {
+    stopPolling();
+    ui.pollTimer = setInterval(function () {
+      if (drawer.classList.contains("open")) return; // don't yank the list under an open edit
+      refresh(true);
+    }, 5000);
+  }
+  function stopPolling() { if (ui.pollTimer) clearInterval(ui.pollTimer); ui.pollTimer = null; }
+
+  function refresh(silent) {
+    return api("/clients").then(function (docs) {
+      state.docs = docs || [];
+      state.online = true;
+      renderAll();
+    }).catch(function (e) {
+      if (e.message === "unauthorized") return;
+      state.online = false;
+      renderAll();
+    });
+  }
+
+  // ---------------- agent identity (per-browser convenience only) ----------------
+  var agentInput = document.getElementById("agentName");
+  try { var savedAgent = localStorage.getItem(AGENT_KEY); if (savedAgent) agentInput.value = savedAgent; } catch (e) {}
+  agentInput.addEventListener("input", function () { try { localStorage.setItem(AGENT_KEY, agentInput.value); } catch (e) {} renderAll(); });
+  function currentAgent() { return (agentInput.value || "").trim(); }
+
+  // ---------------- banners ----------------
+  function renderBanners() {
+    var el = document.getElementById("banners");
+    var html = "";
+    var hasExamples = state.docs.some(function (d) { return d.isExample; });
+    if (!state.online) html += '<div class="banner offline">⚠️ <span><strong>Connexion perdue :</strong> nouvelle tentative automatique en cours…</span></div>';
+    if (hasExamples) html += '<div class="banner">💡 <span><strong>Données d\'exemple</strong> affichées pour montrer l\'outil en action.</span><button class="btn ghost" id="clearExamplesBtn">Supprimer les exemples</button></div>';
+    el.innerHTML = html;
+    var btn = document.getElementById("clearExamplesBtn");
+    if (btn) btn.addEventListener("click", clearExamples);
+  }
+  function clearExamples() {
+    var examples = state.docs.filter(function (d) { return d.isExample; });
+    Promise.all(examples.map(function (d) { return api("/clients/" + d.id, { method: "DELETE" }).catch(function () {}); })).then(function () { refresh(); });
+  }
+
+  // ---------------- KPIs ----------------
+  function renderKpis(list) {
+    document.getElementById("kpiTotal").textContent = list.length;
+    document.getElementById("kpiUpsell").textContent = list.filter(function (d) { return d.upsell === "potential" || d.upsell === "in_progress"; }).length;
+    document.getElementById("kpiRisk").textContent = list.filter(function (d) { return d.risk === "watch" || d.risk === "at_risk" || d.risk === "critical"; }).length;
+    document.getElementById("kpiAttn").textContent = list.filter(function (d) { return d.attention; }).length;
+    document.getElementById("kpiPending").textContent = list.filter(function (d) { return d.pending && d.pending !== "none"; }).length;
+  }
+
+  function applyFilters(list) {
+    var q = document.getElementById("searchBox").value.trim().toLowerCase();
+    var brand = document.getElementById("filterBrand").value;
+    var upsell = document.getElementById("filterUpsell").value;
+    var risk = document.getElementById("filterRisk").value;
+    var pending = document.getElementById("filterPending").value;
+    var mineName = currentAgent().toLowerCase();
+    return list.filter(function (d) {
+      if (q) {
+        var hay = ((d.name || "") + " " + (d.email || "") + " " + (d.accountNumber || "") + " " + (d.agent || "") + " " + (d.notes || "")).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      if (brand && d.brand !== brand) return false;
+      if (upsell && d.upsell !== upsell) return false;
+      if (risk && d.risk !== risk) return false;
+      if (pending && d.pending !== pending) return false;
+      if (ui.mine && (!mineName || (d.agent || "").toLowerCase().indexOf(mineName) === -1)) return false;
+      if (ui.attn && !d.attention) return false;
+      return true;
+    }).sort(function (a, b) { return (b.updatedAt || "").localeCompare(a.updatedAt || ""); });
+  }
+
+  function pillSelect(id, field, map, value) {
+    var v = map[value] ? value : "none";
+    var conf = map[v];
+    var style = "color:" + conf.fg + ";background:" + conf.bg + ";";
+    var opts = Object.keys(map).map(function (k) { return '<option value="' + k + '"' + (k === v ? " selected" : "") + ">" + map[k].label + "</option>"; }).join("");
+    return '<select class="pill-select" style="' + style + '" data-id="' + esc(id) + '" data-field="' + field + '">' + opts + "</select>";
+  }
+
+  function renderAll() {
+    renderBanners();
+    renderKpis(state.docs);
+    var list = applyFilters(state.docs);
+    var tbody = document.getElementById("tbody");
+    var empty = document.getElementById("emptyState");
+
+    if (!state.docs.length) {
+      tbody.innerHTML = "";
+      empty.hidden = false;
+      empty.querySelector("div:nth-child(2)").innerHTML = "<strong>Aucun client suivi pour l'instant.</strong>";
+      empty.querySelector(".hint").textContent = "Ajoutez votre premier client avec le bouton « + Nouveau client ».";
+      return;
+    }
+    if (!list.length) {
+      tbody.innerHTML = "";
+      empty.hidden = false;
+      empty.querySelector("div:nth-child(2)").innerHTML = "<strong>Aucun client ne correspond aux filtres.</strong>";
+      empty.querySelector(".hint").textContent = "Ajustez la recherche ou les filtres, ou ajoutez un nouveau client.";
+      return;
+    }
+    empty.hidden = true;
+
+    tbody.innerHTML = list.map(function (d) {
+      var pkg = PACKAGES[d.package] || PACKAGES.standard;
+      var nextOverdue = d.nextActionDate && d.nextActionDate < todayIso();
+      return (
+        '<tr data-id="' + esc(d.id) + '">' +
+        '<td class="client-cell"><div class="name" data-open="' + esc(d.id) + '">' + esc(d.name || "(sans nom)") + (d.isExample ? '<span class="ex-tag">exemple</span>' : "") + '</div><div class="sub">' + esc(d.email || "") + "</div></td>" +
+        '<td class="acct">' + esc(d.accountNumber || "—") + "</td>" +
+        '<td class="brandtag">' + esc(BRANDS[d.brand] || "—") + "</td>" +
+        '<td><span class="pkgtag">' + esc(pkg.label) + '<span class="prem"><span class="ins-badge ' + (d.insurance ? "on" : "off") + '">' + (d.insurance ? "Assuré · €" + pkg.premium + "/mo" : "Non assuré") + "</span></span></span></td>" +
+        "<td>" + esc(d.agent || "—") + "</td>" +
+        "<td>" + pillSelect(d.id, "upsell", UPSELL, d.upsell) + "</td>" +
+        "<td>" + pillSelect(d.id, "risk", RISK, d.risk) + "</td>" +
+        '<td><button class="attn-btn ' + (d.attention ? "on" : "") + '" data-attn="' + esc(d.id) + '" title="' + (d.attention ? esc(d.attentionReason || "Attention particulière") : "Marquer une attention particulière") + '">🚩</button></td>' +
+        "<td>" + pillSelect(d.id, "pending", PENDING, d.pending) + "</td>" +
+        '<td class="next-action' + (nextOverdue ? " overdue" : "") + '">' + (d.nextActionDate ? fmtDate(d.nextActionDate) : "—") + (d.nextActionNote ? '<br><span style="color:var(--text-faint)">' + esc(d.nextActionNote) + "</span>" : "") + "</td>" +
+        '<td class="updated">' + fmtRelative(d.updatedAt) + (d.updatedBy ? "<br>" + esc(d.updatedBy) : "") + "</td>" +
+        '<td><div class="rowactions"><button class="icon-btn" data-open="' + esc(d.id) + '" title="Modifier">✎</button><button class="icon-btn del" data-del="' + esc(d.id) + '" title="Supprimer">🗑</button></div></td>' +
+        "</tr>"
+      );
+    }).join("");
+
+    tbody.querySelectorAll(".pill-select").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var id = sel.getAttribute("data-id"), field = sel.getAttribute("data-field");
+        var patch = {}; patch[field] = sel.value;
+        updateDoc(id, patch);
+      });
+      sel.addEventListener("click", function (ev) { ev.stopPropagation(); });
+    });
+    tbody.querySelectorAll("[data-open]").forEach(function (el) { el.addEventListener("click", function () { openDrawer(el.getAttribute("data-open")); }); });
+    tbody.querySelectorAll("[data-del]").forEach(function (el) {
+      el.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var id = el.getAttribute("data-del");
+        var d = state.docs.filter(function (x) { return x.id === id; })[0];
+        if (confirm('Supprimer la fiche de "' + (d ? d.name : "ce client") + '" ? Cette action est définitive.')) deleteDoc(id);
+      });
+    });
+    tbody.querySelectorAll("[data-attn]").forEach(function (el) {
+      el.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var id = el.getAttribute("data-attn");
+        var d = state.docs.filter(function (x) { return x.id === id; })[0];
+        if (!d) return;
+        if (d.attention) { updateDoc(id, { attention: false }); }
+        else {
+          var reason = prompt("Motif de l'attention particulière (ex. VIP, litige, client difficile) :", d.attentionReason || "");
+          if (reason === null) return;
+          updateDoc(id, { attention: true, attentionReason: reason });
+        }
+      });
+    });
+  }
+
+  // ---------------- CRUD ----------------
+  function updateDoc(id, patch) {
+    patch = Object.assign({}, patch, { updatedBy: currentAgent() || "Agent" });
+    var idx = state.docs.findIndex(function (d) { return d.id === id; });
+    if (idx > -1) state.docs[idx] = Object.assign({}, state.docs[idx], patch, { updatedAt: new Date().toISOString() });
+    renderAll();
+    api("/clients/" + id, { method: "PATCH", body: JSON.stringify(patch) }).catch(function (e) { if (e.message !== "unauthorized") refresh(); });
+  }
+  function deleteDoc(id) {
+    state.docs = state.docs.filter(function (d) { return d.id !== id; });
+    renderAll();
+    api("/clients/" + id, { method: "DELETE" }).catch(function (e) { if (e.message !== "unauthorized") refresh(); });
+  }
+  function createDoc(data) {
+    data.updatedBy = currentAgent() || "Agent";
+    api("/clients", { method: "POST", body: JSON.stringify(data) }).then(function () { refresh(); }).catch(function (e) { if (e.message !== "unauthorized") refresh(); });
+  }
+
+  // ---------------- filters wiring ----------------
+  ["searchBox", "filterBrand", "filterUpsell", "filterRisk", "filterPending"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", renderAll);
+    document.getElementById(id).addEventListener("change", renderAll);
+  });
+  document.getElementById("mineToggle").addEventListener("click", function () { ui.mine = !ui.mine; this.classList.toggle("on", ui.mine); renderAll(); });
+  document.getElementById("attnToggle").addEventListener("click", function () { ui.attn = !ui.attn; this.classList.toggle("on", ui.attn); renderAll(); });
+
+  // ---------------- drawer ----------------
+  var drawer = document.getElementById("drawer");
+  var scrim = document.getElementById("scrim");
+  function switchSet(el, on) { el.classList.toggle("on", !!on); el.dataset.on = on ? "1" : "0"; }
+  function switchGet(el) { return el.dataset.on === "1"; }
+  [document.getElementById("f_insurance"), document.getElementById("f_attention")].forEach(function (sw) {
+    sw.addEventListener("click", function () { switchSet(sw, !switchGet(sw)); if (sw.id === "f_attention") toggleAttnReason(); });
+  });
+  function toggleAttnReason() { document.getElementById("attnReasonField").style.display = switchGet(document.getElementById("f_attention")) ? "flex" : "none"; }
+  document.getElementById("f_pending").addEventListener("change", togglePendingNote);
+  function togglePendingNote() { var v = document.getElementById("f_pending").value; document.getElementById("pendingNoteField").style.display = v && v !== "none" ? "flex" : "none"; }
+
+  function openDrawer(id) {
+    ui.editingId = id || null;
+    var d = id ? state.docs.filter(function (x) { return x.id === id; })[0] : null;
+    document.getElementById("drawerTitle").textContent = d ? "Modifier — " + (d.name || "") : "Nouveau client";
+    document.getElementById("deleteBtn").hidden = !d;
+    document.getElementById("f_name").value = d ? (d.name || "") : "";
+    document.getElementById("f_email").value = d ? (d.email || "") : "";
+    document.getElementById("f_acct").value = d ? (d.accountNumber || "") : "";
+    document.getElementById("f_brand").value = d ? (d.brand || "vac") : "vac";
+    document.getElementById("f_agent").value = d ? (d.agent || "") : currentAgent();
+    document.getElementById("f_package").value = d ? (d.package || "standard") : "standard";
+    switchSet(document.getElementById("f_insurance"), d ? !!d.insurance : false);
+    document.getElementById("f_upsell").value = d ? (d.upsell || "none") : "none";
+    document.getElementById("f_risk").value = d ? (d.risk || "none") : "none";
+    switchSet(document.getElementById("f_attention"), d ? !!d.attention : false);
+    document.getElementById("f_attnreason").value = d ? (d.attentionReason || "") : "";
+    document.getElementById("f_pending").value = d ? (d.pending || "none") : "none";
+    document.getElementById("f_pendingnote").value = d ? (d.pendingNote || "") : "";
+    document.getElementById("f_nextdate").value = d ? (d.nextActionDate || "") : "";
+    document.getElementById("f_nextnote").value = d ? (d.nextActionNote || "") : "";
+    document.getElementById("f_notes").value = d ? (d.notes || "") : "";
+    document.getElementById("metaNote").textContent = d ? ("Créé le " + fmtDate(d.createdAt) + " · dernière MAJ " + fmtRelative(d.updatedAt) + (d.updatedBy ? " par " + d.updatedBy : "")) : "";
+    toggleAttnReason(); togglePendingNote();
+    drawer.classList.add("open"); scrim.classList.add("open");
+    document.getElementById("f_name").focus();
+  }
+  function closeDrawer() { drawer.classList.remove("open"); scrim.classList.remove("open"); ui.editingId = null; }
+  document.getElementById("addBtn").addEventListener("click", function () { openDrawer(null); });
+  document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
+  document.getElementById("cancelBtn").addEventListener("click", closeDrawer);
+  scrim.addEventListener("click", closeDrawer);
+
+  document.getElementById("saveBtn").addEventListener("click", function () {
+    var name = document.getElementById("f_name").value.trim();
+    if (!name) { document.getElementById("f_name").focus(); return; }
+    var payload = {
+      name: name,
+      email: document.getElementById("f_email").value.trim(),
+      accountNumber: document.getElementById("f_acct").value.trim(),
+      brand: document.getElementById("f_brand").value,
+      agent: document.getElementById("f_agent").value.trim(),
+      package: document.getElementById("f_package").value,
+      insurance: switchGet(document.getElementById("f_insurance")),
+      upsell: document.getElementById("f_upsell").value,
+      risk: document.getElementById("f_risk").value,
+      attention: switchGet(document.getElementById("f_attention")),
+      attentionReason: document.getElementById("f_attnreason").value.trim(),
+      pending: document.getElementById("f_pending").value,
+      pendingNote: document.getElementById("f_pendingnote").value.trim(),
+      nextActionDate: document.getElementById("f_nextdate").value,
+      nextActionNote: document.getElementById("f_nextnote").value.trim(),
+      notes: document.getElementById("f_notes").value.trim()
+    };
+    if (ui.editingId) updateDoc(ui.editingId, payload); else createDoc(payload);
+    closeDrawer();
+  });
+  document.getElementById("deleteBtn").addEventListener("click", function () {
+    if (!ui.editingId) return;
+    var d = state.docs.filter(function (x) { return x.id === ui.editingId; })[0];
+    if (confirm('Supprimer la fiche de "' + (d ? d.name : "ce client") + '" ? Cette action est définitive.')) { deleteDoc(ui.editingId); closeDrawer(); }
+  });
+  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && drawer.classList.contains("open")) closeDrawer(); });
+
+  // ---------------- boot ----------------
+  loadMeta().then(function (meta) {
+    applyMeta(meta);
+    return tryStoredCode();
+  }).then(function (ok) {
+    if (ok) enterApp();
+    else document.getElementById("gateCode").focus();
+  });
+})();
+</script>
+</body>
+</html>
