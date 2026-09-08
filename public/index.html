@@ -118,6 +118,7 @@
   .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
   .btn.ghost { border-color: transparent; background: transparent; }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn.danger-outline { border-color: var(--danger); color: var(--danger); }
   .toggle-chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
   .toggle-chip.on { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
 
@@ -129,15 +130,18 @@
   /* ---------- table ---------- */
   .tablewrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
   .scrollx { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; min-width: 1180px; }
+  table { width: 100%; border-collapse: collapse; min-width: 1380px; }
   thead th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 700; padding: 11px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); white-space: nowrap; }
   tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 13.5px; }
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover { background: var(--surface-2); }
+  tbody tr.row-closed { opacity: 0.55; }
+  tbody tr.row-closed:hover { opacity: 0.8; }
   .client-cell .name { font-weight: 700; color: var(--text); cursor: pointer; }
   .client-cell .name:hover { color: var(--accent); text-decoration: underline; }
   .client-cell .sub { font-size: 12px; color: var(--text-faint); margin-top: 1px; }
   .ex-tag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gold); background: var(--gold-soft); border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: middle; }
+  .closed-tag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-faint); background: var(--neutral-soft); border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: middle; }
   .acct { font-size: 12.5px; color: var(--text-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
   .pill-select { appearance: none; -webkit-appearance: none; border: 1px solid transparent; border-radius: 999px; padding: 5px 26px 5px 11px; font-size: 12.5px; font-weight: 700; cursor: pointer; background-repeat: no-repeat; background-position: right 8px center; background-size: 9px;
@@ -156,11 +160,13 @@
   .next-action { font-size: 12.5px; color: var(--text-soft); }
   .next-action.overdue { color: var(--danger); font-weight: 700; }
   .updated { font-size: 11.5px; color: var(--text-faint); }
+  .comments-cell { max-width: 220px; font-size: 12.5px; color: var(--text-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .rowactions { display: flex; gap: 4px; justify-content: flex-end; }
   .icon-btn { border: 1px solid transparent; background: transparent; width: 28px; height: 28px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-faint); font-size: 13px; }
   .icon-btn:hover { background: var(--surface-2); color: var(--text); }
   .icon-btn.del:hover { background: var(--danger-soft); color: var(--danger); }
+  .icon-btn.reopen:hover { background: var(--success-soft); color: var(--success); }
 
   .empty { padding: 64px 20px; text-align: center; color: var(--text-soft); }
   .empty .big { font-size: 34px; margin-bottom: 8px; }
@@ -185,8 +191,8 @@
   .switch.on { background: var(--accent); border-color: var(--accent); }
   .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); transition: left 0.15s ease; }
   .switch.on::after { left: 18px; background: #fff; }
-  .drawer-foot { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
-  .drawer-foot .btn.danger-outline { border-color: var(--danger); color: var(--danger); margin-right: auto; }
+  .drawer-foot { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .drawer-foot .btn.danger-outline { margin-right: auto; }
   .meta-note { font-size: 11.5px; color: var(--text-faint); }
   .hint { font-size: 12px; color: var(--text-faint); margin-top: -4px; }
 
@@ -206,7 +212,7 @@
     <input type="password" id="gateCode" placeholder="Code d'accès" autocomplete="off" />
     <button class="btn primary" id="gateSubmit">Accéder à l'outil</button>
     <div class="gate-error" id="gateError"></div>
-    <div class="gate-hint">Ce code vous a été communiqué par votre responsable. Il reste enregistré sur cet appareil.</div>
+    <div class="gate-hint" id="gateHint">Ce code vous a été communiqué par votre responsable. Il reste enregistré sur cet appareil.</div>
   </div>
 </div>
 
@@ -221,7 +227,7 @@
     </div>
     <div class="whoami">
       <span class="dot off" id="connDot"></span>
-      <label for="agentName">Vous êtes</label>
+      <label for="agentName" id="whoamiLabel">Vous êtes</label>
       <input id="agentName" type="text" placeholder="Votre prénom" />
       <button class="logout" id="logoutBtn" title="Changer de code d'accès">⎋</button>
     </div>
@@ -230,11 +236,11 @@
   <div id="banners"></div>
 
   <div class="kpis">
-    <div class="kpi accent-total"><div class="n" id="kpiTotal">0</div><div class="l">Clients suivis</div></div>
-    <div class="kpi accent-upsell"><div class="n" id="kpiUpsell">0</div><div class="l">Upsell actif</div></div>
-    <div class="kpi accent-risk"><div class="n" id="kpiRisk">0</div><div class="l">Risque présa</div></div>
-    <div class="kpi accent-attn"><div class="n" id="kpiAttn">0</div><div class="l">Attention particulière</div></div>
-    <div class="kpi accent-pending"><div class="n" id="kpiPending">0</div><div class="l">En attente MAJ</div></div>
+    <div class="kpi accent-total"><div class="n" id="kpiTotal">0</div><div class="l" id="kpiTotalLabel">Clients suivis</div></div>
+    <div class="kpi accent-upsell"><div class="n" id="kpiUpsell">0</div><div class="l" id="kpiUpsellLabel">Upsell actif</div></div>
+    <div class="kpi accent-risk"><div class="n" id="kpiRisk">0</div><div class="l" id="kpiRiskLabel">Risque présa</div></div>
+    <div class="kpi accent-attn"><div class="n" id="kpiAttn">0</div><div class="l" id="kpiAttnLabel">Attention particulière</div></div>
+    <div class="kpi accent-pending"><div class="n" id="kpiPending">0</div><div class="l" id="kpiPendingLabel">En attente MAJ</div></div>
   </div>
 
   <div class="toolbar">
@@ -243,6 +249,11 @@
     <select class="filter" id="filterUpsell"><option value="">Upsell — tous</option></select>
     <select class="filter" id="filterRisk"><option value="">Risque présa — tous</option></select>
     <select class="filter" id="filterPending"><option value="">En attente — tous</option></select>
+    <select class="filter" id="filterStatus">
+      <option value="open" id="filterStatusOpenOpt">Dossiers actifs</option>
+      <option value="closed" id="filterStatusClosedOpt">Dossiers clôturés</option>
+      <option value="all" id="filterStatusAllOpt">Tous les dossiers</option>
+    </select>
     <button class="toggle-chip" id="mineToggle">👤 Mes clients</button>
     <button class="toggle-chip" id="attnToggle">🚩 Attention seulement</button>
     <span class="spacer"></span>
@@ -254,17 +265,18 @@
       <table>
         <thead>
           <tr>
-            <th>Client</th>
-            <th>N° de compte</th>
-            <th>Marque</th>
-            <th>Package / Assurance</th>
-            <th>Agent</th>
-            <th>Upsell</th>
-            <th>Risque présa</th>
-            <th>⚑</th>
-            <th>En attente MAJ</th>
-            <th>Prochaine action</th>
-            <th>MAJ</th>
+            <th id="thClient">Client</th>
+            <th id="thAccount">N° de compte</th>
+            <th id="thBrand">Marque</th>
+            <th id="thPackage">Package / Assurance</th>
+            <th id="thAgent">Agent</th>
+            <th id="thUpsell">Upsell</th>
+            <th id="thRisk">Risque présa</th>
+            <th id="thFlag">⚑</th>
+            <th id="thPending">En attente MAJ</th>
+            <th id="thNext">Prochaine action</th>
+            <th id="thUpdated">MAJ</th>
+            <th id="thComments">Commentaires</th>
             <th></th>
           </tr>
         </thead>
@@ -286,35 +298,36 @@
     <button class="icon-btn" id="closeDrawer">✕</button>
   </div>
   <div class="drawer-body">
-    <div class="field"><label for="f_name">Nom du client</label><input type="text" id="f_name" placeholder="Prénom Nom" /></div>
-    <div class="field"><label for="f_email">Email</label><input type="email" id="f_email" placeholder="client@exemple.com" /></div>
-    <div class="field"><label for="f_acct">N° de compte</label><input type="text" id="f_acct" placeholder="Ex. CIS-2026-00453" /></div>
+    <div class="field"><label for="f_name" id="lbl_name">Nom du client</label><input type="text" id="f_name" placeholder="Prénom Nom" /></div>
+    <div class="field"><label for="f_email" id="lbl_email">Email</label><input type="email" id="f_email" placeholder="client@exemple.com" /></div>
+    <div class="field"><label for="f_acct" id="lbl_acct">N° de compte</label><input type="text" id="f_acct" placeholder="Ex. CIS-2026-00453" /></div>
     <div class="field-row">
-      <div class="field"><label for="f_brand">Marque</label><select id="f_brand"></select></div>
-      <div class="field"><label for="f_agent">Agent assigné</label><input type="text" id="f_agent" placeholder="Nom de l'agent" /></div>
+      <div class="field"><label for="f_brand" id="lbl_brand">Marque</label><select id="f_brand"></select></div>
+      <div class="field"><label for="f_agent" id="lbl_agent">Agent assigné</label><input type="text" id="f_agent" placeholder="Nom de l'agent" /></div>
     </div>
     <div class="field-row">
-      <div class="field"><label for="f_package">Package</label><select id="f_package"></select></div>
+      <div class="field"><label for="f_package" id="lbl_package">Package</label><select id="f_package"></select></div>
       <div class="field">
         <label>&nbsp;</label>
-        <div class="switch-row" style="padding:9px 10px;"><span class="t">Assurance souscrite</span><div class="switch" id="f_insurance"></div></div>
+        <div class="switch-row" style="padding:9px 10px;"><span class="t" id="lbl_insurance">Assurance souscrite</span><div class="switch" id="f_insurance"></div></div>
       </div>
     </div>
-    <div class="field"><label for="f_upsell">Statut upsell</label><select id="f_upsell"></select></div>
-    <div class="field"><label for="f_risk">Risque de préservation (présa)</label><select id="f_risk"></select></div>
-    <div class="switch-row"><span class="t">🚩 Attention particulière</span><div class="switch" id="f_attention"></div></div>
-    <div class="field" id="attnReasonField"><label for="f_attnreason">Motif de l'attention</label><input type="text" id="f_attnreason" placeholder="Ex. client difficile, VIP, litige…" /></div>
-    <div class="field"><label for="f_pending">En attente de mise à jour</label><select id="f_pending"></select></div>
-    <div class="field" id="pendingNoteField"><label for="f_pendingnote">Détail de l'attente</label><input type="text" id="f_pendingnote" placeholder="Ex. avenant contrat en révision board" /></div>
+    <div class="field"><label for="f_upsell" id="lbl_upsell">Statut upsell</label><select id="f_upsell"></select></div>
+    <div class="field"><label for="f_risk" id="lbl_risk">Risque de préservation (présa)</label><select id="f_risk"></select></div>
+    <div class="switch-row"><span class="t" id="lbl_attention">🚩 Attention particulière</span><div class="switch" id="f_attention"></div></div>
+    <div class="field" id="attnReasonField"><label for="f_attnreason" id="lbl_attnreason">Motif de l'attention</label><input type="text" id="f_attnreason" placeholder="Ex. client difficile, VIP, litige…" /></div>
+    <div class="field"><label for="f_pending" id="lbl_pending">En attente de mise à jour</label><select id="f_pending"></select></div>
+    <div class="field" id="pendingNoteField"><label for="f_pendingnote" id="lbl_pendingnote">Détail de l'attente</label><input type="text" id="f_pendingnote" placeholder="Ex. avenant contrat en révision board" /></div>
     <div class="field-row">
-      <div class="field"><label for="f_nextdate">Prochaine action — date</label><input type="date" id="f_nextdate" /></div>
-      <div class="field"><label for="f_nextnote">Prochaine action — note</label><input type="text" id="f_nextnote" placeholder="Ex. relance J+3" /></div>
+      <div class="field"><label for="f_nextdate" id="lbl_nextdate">Prochaine action — date</label><input type="date" id="f_nextdate" /></div>
+      <div class="field"><label for="f_nextnote" id="lbl_nextnote">Prochaine action — note</label><input type="text" id="f_nextnote" placeholder="Ex. relance J+3" /></div>
     </div>
-    <div class="field"><label for="f_notes">Notes internes</label><textarea id="f_notes" placeholder="Historique, contexte, décisions…"></textarea></div>
+    <div class="field"><label for="f_notes" id="lbl_notes">Notes internes</label><textarea id="f_notes" placeholder="Historique, contexte, décisions…"></textarea></div>
     <div class="meta-note" id="metaNote"></div>
   </div>
   <div class="drawer-foot">
     <button class="btn danger-outline" id="deleteBtn" hidden>Supprimer</button>
+    <button class="btn" id="closeCaseBtn" hidden>🔒 Clôturer</button>
     <button class="btn ghost" id="cancelBtn">Annuler</button>
     <button class="btn primary" id="saveBtn">Enregistrer</button>
   </div>
@@ -329,27 +342,404 @@
   var STORAGE_KEY = "cfu_code_" + DESK;
   var AGENT_KEY = "cfu_agent_" + DESK;
 
+  document.documentElement.lang = (["en", "fr", "it", "es"].indexOf(DESK) > -1) ? DESK : "fr";
+
+  // ---------------- i18n ----------------
+  var I18N = {
+    fr: {
+      gate_subtitle: "Entrez le code d'accès de votre desk",
+      gate_code_placeholder: "Code d'accès",
+      gate_submit: "Accéder à l'outil",
+      gate_hint: "Ce code vous a été communiqué par votre responsable. Il reste enregistré sur cet appareil.",
+      gate_error_invalid: "Code incorrect. Vérifiez auprès de votre responsable.",
+      gate_error_network: "Connexion au serveur impossible. Réessayez.",
+      gate_error_expired: "Code d'accès invalide ou expiré. Réessayez.",
+      app_subtitle: "Suivi clients — upsell, risques de préservation, attentions particulières & attentes légales/board",
+      whoami_label: "Vous êtes",
+      agent_placeholder: "Votre prénom",
+      logout_title: "Changer de code d'accès",
+      kpi_total: "Clients suivis",
+      kpi_upsell: "Upsell actif",
+      kpi_risk: "Risque présa",
+      kpi_attn: "Attention particulière",
+      kpi_pending: "En attente MAJ",
+      search_placeholder: "Rechercher un client, un agent, un email, un n° de compte…",
+      filter_brand_all: "Toutes les marques",
+      filter_upsell_all: "Upsell — tous",
+      filter_risk_all: "Risque présa — tous",
+      filter_pending_all: "En attente — tous",
+      filter_status_open: "Dossiers actifs",
+      filter_status_closed: "Dossiers clôturés",
+      filter_status_all: "Tous les dossiers",
+      mine_toggle: "👤 Mes clients",
+      attn_toggle: "🚩 Attention seulement",
+      add_btn: "+ Nouveau client",
+      th_client: "Client", th_account: "N° de compte", th_brand: "Marque", th_package: "Package / Assurance",
+      th_agent: "Agent", th_upsell: "Upsell", th_risk: "Risque présa", th_flag: "⚑",
+      th_pending: "En attente MAJ", th_next: "Prochaine action", th_updated: "MAJ", th_comments: "Commentaires",
+      empty_none_title: "Aucun client suivi pour l'instant.",
+      empty_none_hint: "Ajoutez votre premier client avec le bouton « + Nouveau client ».",
+      empty_filtered_title: "Aucun client ne correspond aux filtres.",
+      empty_filtered_hint: "Ajustez la recherche ou les filtres, ou ajoutez un nouveau client.",
+      drawer_new_title: "Nouveau client",
+      drawer_edit_prefix: "Modifier — ",
+      f_name_label: "Nom du client", f_name_placeholder: "Prénom Nom",
+      f_email_label: "Email", f_email_placeholder: "client@exemple.com",
+      f_acct_label: "N° de compte", f_acct_placeholder: "Ex. CIS-2026-00453",
+      f_brand_label: "Marque",
+      f_agent_label: "Agent assigné", f_agent_placeholder: "Nom de l'agent",
+      f_package_label: "Package",
+      insurance_label: "Assurance souscrite",
+      f_upsell_label: "Statut upsell",
+      f_risk_label: "Risque de préservation (présa)",
+      attention_label: "🚩 Attention particulière",
+      attn_active_fallback: "Attention particulière",
+      f_attnreason_label: "Motif de l'attention", f_attnreason_placeholder: "Ex. client difficile, VIP, litige…",
+      f_pending_label: "En attente de mise à jour",
+      f_pendingnote_label: "Détail de l'attente", f_pendingnote_placeholder: "Ex. avenant contrat en révision board",
+      f_nextdate_label: "Prochaine action — date",
+      f_nextnote_label: "Prochaine action — note", f_nextnote_placeholder: "Ex. relance J+3",
+      f_notes_label: "Notes internes", f_notes_placeholder: "Historique, contexte, décisions…",
+      btn_delete: "Supprimer", btn_cancel: "Annuler", btn_save: "Enregistrer",
+      btn_close_case: "🔒 Clôturer", btn_reopen_case: "🔓 Rouvrir",
+      closed_badge: "Clôturé",
+      title_edit: "Modifier", title_delete: "Supprimer",
+      title_close_case: "Clôturer le dossier", title_reopen_case: "Rouvrir le dossier",
+      title_attn_on: "Marquer une attention particulière",
+      confirm_delete: 'Supprimer la fiche de "{name}" ? Cette action est définitive.',
+      confirm_close: 'Clôturer le dossier de "{name}" ? Vous pourrez le rouvrir à tout moment.',
+      prompt_attn_reason: "Motif de l'attention particulière (ex. VIP, litige, client difficile) :",
+      banner_offline: "⚠️ Connexion perdue : nouvelle tentative automatique en cours…",
+      banner_examples: "💡 Données d'exemple affichées pour montrer l'outil en action.",
+      btn_clear_examples: "Supprimer les exemples",
+      no_name: "(sans nom)", ex_tag: "exemple",
+      ins_on_prefix: "Assuré · €", ins_on_suffix: "/mo", ins_off: "Non assuré",
+      meta_created: "Créé le ", meta_updated: " · dernière MAJ ", meta_by: " par ",
+      pending_none: "—", pending_legal: "Legal", pending_board: "Board", pending_finance: "Finance",
+      pending_jobsearch: "Job Search", pending_other: "Autre",
+      upsell_none: "Aucun", upsell_potential: "Potentiel", upsell_in_progress: "En cours", upsell_won: "Conclu ✓", upsell_lost: "Refusé",
+      risk_none: "Aucun", risk_watch: "À surveiller", risk_at_risk: "À risque", risk_critical: "Critique",
+      date_locale: "fr-FR", rel_now: "à l'instant", rel_h: " h", rel_j: " j"
+    },
+    en: {
+      gate_subtitle: "Enter your desk's access code",
+      gate_code_placeholder: "Access code",
+      gate_submit: "Access the tool",
+      gate_hint: "This code was shared with you by your manager. It stays saved on this device.",
+      gate_error_invalid: "Incorrect code. Check with your manager.",
+      gate_error_network: "Couldn't reach the server. Please try again.",
+      gate_error_expired: "Access code invalid or expired. Please try again.",
+      app_subtitle: "Client follow-up — upsell, retention risk, special attention & legal/board holds",
+      whoami_label: "You are",
+      agent_placeholder: "Your first name",
+      logout_title: "Change access code",
+      kpi_total: "Clients tracked",
+      kpi_upsell: "Active upsell",
+      kpi_risk: "Retention risk",
+      kpi_attn: "Special attention",
+      kpi_pending: "Pending update",
+      search_placeholder: "Search a client, agent, email, account number…",
+      filter_brand_all: "All brands",
+      filter_upsell_all: "Upsell — all",
+      filter_risk_all: "Retention risk — all",
+      filter_pending_all: "Pending — all",
+      filter_status_open: "Active cases",
+      filter_status_closed: "Closed cases",
+      filter_status_all: "All cases",
+      mine_toggle: "👤 My clients",
+      attn_toggle: "🚩 Attention only",
+      add_btn: "+ New client",
+      th_client: "Client", th_account: "Account #", th_brand: "Brand", th_package: "Package / Insurance",
+      th_agent: "Agent", th_upsell: "Upsell", th_risk: "Retention risk", th_flag: "⚑",
+      th_pending: "Pending update", th_next: "Next action", th_updated: "Updated", th_comments: "Comments",
+      empty_none_title: "No clients tracked yet.",
+      empty_none_hint: "Add your first client with the “+ New client” button.",
+      empty_filtered_title: "No clients match your filters.",
+      empty_filtered_hint: "Adjust your search or filters, or add a new client.",
+      drawer_new_title: "New client",
+      drawer_edit_prefix: "Edit — ",
+      f_name_label: "Client name", f_name_placeholder: "First Last",
+      f_email_label: "Email", f_email_placeholder: "client@example.com",
+      f_acct_label: "Account #", f_acct_placeholder: "e.g. CIS-2026-00453",
+      f_brand_label: "Brand",
+      f_agent_label: "Assigned agent", f_agent_placeholder: "Agent's name",
+      f_package_label: "Package",
+      insurance_label: "Insurance subscribed",
+      f_upsell_label: "Upsell status",
+      f_risk_label: "Retention risk",
+      attention_label: "🚩 Special attention",
+      attn_active_fallback: "Special attention",
+      f_attnreason_label: "Reason for attention", f_attnreason_placeholder: "e.g. difficult client, VIP, dispute…",
+      f_pending_label: "Pending update",
+      f_pendingnote_label: "Pending detail", f_pendingnote_placeholder: "e.g. amendment under board review",
+      f_nextdate_label: "Next action — date",
+      f_nextnote_label: "Next action — note", f_nextnote_placeholder: "e.g. follow up in 3 days",
+      f_notes_label: "Internal notes", f_notes_placeholder: "History, context, decisions…",
+      btn_delete: "Delete", btn_cancel: "Cancel", btn_save: "Save",
+      btn_close_case: "🔒 Close case", btn_reopen_case: "🔓 Reopen",
+      closed_badge: "Closed",
+      title_edit: "Edit", title_delete: "Delete",
+      title_close_case: "Close case", title_reopen_case: "Reopen case",
+      title_attn_on: "Flag for special attention",
+      confirm_delete: 'Delete the record for "{name}"? This action is permanent.',
+      confirm_close: 'Close the case for "{name}"? You can reopen it anytime.',
+      prompt_attn_reason: "Reason for special attention (e.g. VIP, dispute, difficult client):",
+      banner_offline: "⚠️ Connection lost: retrying automatically…",
+      banner_examples: "💡 Example data shown to demonstrate the tool.",
+      btn_clear_examples: "Remove examples",
+      no_name: "(no name)", ex_tag: "example",
+      ins_on_prefix: "Insured · €", ins_on_suffix: "/mo", ins_off: "Not insured",
+      meta_created: "Created ", meta_updated: " · last updated ", meta_by: " by ",
+      pending_none: "—", pending_legal: "Legal", pending_board: "Board", pending_finance: "Finance",
+      pending_jobsearch: "Job Search", pending_other: "Other",
+      upsell_none: "None", upsell_potential: "Potential", upsell_in_progress: "In progress", upsell_won: "Won ✓", upsell_lost: "Lost",
+      risk_none: "None", risk_watch: "Watch", risk_at_risk: "At risk", risk_critical: "Critical",
+      date_locale: "en-US", rel_now: "just now", rel_h: "h", rel_j: "d"
+    },
+    it: {
+      gate_subtitle: "Inserisci il codice di accesso del tuo desk",
+      gate_code_placeholder: "Codice di accesso",
+      gate_submit: "Accedi allo strumento",
+      gate_hint: "Questo codice ti è stato comunicato dal tuo responsabile. Resta salvato su questo dispositivo.",
+      gate_error_invalid: "Codice errato. Verifica con il tuo responsabile.",
+      gate_error_network: "Impossibile contattare il server. Riprova.",
+      gate_error_expired: "Codice di accesso non valido o scaduto. Riprova.",
+      app_subtitle: "Follow-up clienti — upsell, rischio di abbandono, attenzioni particolari e vincoli legali/board",
+      whoami_label: "Sei",
+      agent_placeholder: "Il tuo nome",
+      logout_title: "Cambia codice di accesso",
+      kpi_total: "Clienti seguiti",
+      kpi_upsell: "Upsell attivo",
+      kpi_risk: "Rischio abbandono",
+      kpi_attn: "Attenzione particolare",
+      kpi_pending: "In attesa di aggiornamento",
+      search_placeholder: "Cerca un cliente, un agente, un'email, un numero conto…",
+      filter_brand_all: "Tutti i brand",
+      filter_upsell_all: "Upsell — tutti",
+      filter_risk_all: "Rischio abbandono — tutti",
+      filter_pending_all: "In attesa — tutti",
+      filter_status_open: "Pratiche attive",
+      filter_status_closed: "Pratiche chiuse",
+      filter_status_all: "Tutte le pratiche",
+      mine_toggle: "👤 I miei clienti",
+      attn_toggle: "🚩 Solo attenzione",
+      add_btn: "+ Nuovo cliente",
+      th_client: "Cliente", th_account: "N° conto", th_brand: "Brand", th_package: "Pacchetto / Assicurazione",
+      th_agent: "Agente", th_upsell: "Upsell", th_risk: "Rischio abbandono", th_flag: "⚑",
+      th_pending: "In attesa di aggiornamento", th_next: "Prossima azione", th_updated: "Aggiornato", th_comments: "Commenti",
+      empty_none_title: "Nessun cliente ancora seguito.",
+      empty_none_hint: "Aggiungi il tuo primo cliente con il pulsante “+ Nuovo cliente”.",
+      empty_filtered_title: "Nessun cliente corrisponde ai filtri.",
+      empty_filtered_hint: "Modifica la ricerca o i filtri, oppure aggiungi un nuovo cliente.",
+      drawer_new_title: "Nuovo cliente",
+      drawer_edit_prefix: "Modifica — ",
+      f_name_label: "Nome del cliente", f_name_placeholder: "Nome Cognome",
+      f_email_label: "Email", f_email_placeholder: "cliente@esempio.com",
+      f_acct_label: "N° conto", f_acct_placeholder: "Es. CIS-2026-00453",
+      f_brand_label: "Brand",
+      f_agent_label: "Agente assegnato", f_agent_placeholder: "Nome dell'agente",
+      f_package_label: "Pacchetto",
+      insurance_label: "Assicurazione sottoscritta",
+      f_upsell_label: "Stato upsell",
+      f_risk_label: "Rischio di abbandono",
+      attention_label: "🚩 Attenzione particolare",
+      attn_active_fallback: "Attenzione particolare",
+      f_attnreason_label: "Motivo dell'attenzione", f_attnreason_placeholder: "Es. cliente difficile, VIP, controversia…",
+      f_pending_label: "In attesa di aggiornamento",
+      f_pendingnote_label: "Dettaglio dell'attesa", f_pendingnote_placeholder: "Es. modifica in revisione dal board",
+      f_nextdate_label: "Prossima azione — data",
+      f_nextnote_label: "Prossima azione — nota", f_nextnote_placeholder: "Es. richiamo dopo 3 giorni",
+      f_notes_label: "Note interne", f_notes_placeholder: "Storico, contesto, decisioni…",
+      btn_delete: "Elimina", btn_cancel: "Annulla", btn_save: "Salva",
+      btn_close_case: "🔒 Chiudi pratica", btn_reopen_case: "🔓 Riapri",
+      closed_badge: "Chiusa",
+      title_edit: "Modifica", title_delete: "Elimina",
+      title_close_case: "Chiudi pratica", title_reopen_case: "Riapri pratica",
+      title_attn_on: "Segnala attenzione particolare",
+      confirm_delete: 'Eliminare la scheda di "{name}"? Questa azione è definitiva.',
+      confirm_close: 'Chiudere la pratica di "{name}"? Potrai riaprirla in qualsiasi momento.',
+      prompt_attn_reason: "Motivo dell'attenzione particolare (es. VIP, controversia, cliente difficile):",
+      banner_offline: "⚠️ Connessione persa: nuovo tentativo automatico in corso…",
+      banner_examples: "💡 Dati di esempio mostrati per illustrare lo strumento.",
+      btn_clear_examples: "Rimuovi esempi",
+      no_name: "(senza nome)", ex_tag: "esempio",
+      ins_on_prefix: "Assicurato · €", ins_on_suffix: "/mese", ins_off: "Non assicurato",
+      meta_created: "Creato il ", meta_updated: " · ultimo aggiornamento ", meta_by: " da ",
+      pending_none: "—", pending_legal: "Legal", pending_board: "Board", pending_finance: "Finance",
+      pending_jobsearch: "Job Search", pending_other: "Altro",
+      upsell_none: "Nessuno", upsell_potential: "Potenziale", upsell_in_progress: "In corso", upsell_won: "Concluso ✓", upsell_lost: "Perso",
+      risk_none: "Nessuno", risk_watch: "Da monitorare", risk_at_risk: "A rischio", risk_critical: "Critico",
+      date_locale: "it-IT", rel_now: "adesso", rel_h: " h", rel_j: " g"
+    },
+    es: {
+      gate_subtitle: "Introduce el código de acceso de tu desk",
+      gate_code_placeholder: "Código de acceso",
+      gate_submit: "Acceder a la herramienta",
+      gate_hint: "Este código te lo ha proporcionado tu responsable. Queda guardado en este dispositivo.",
+      gate_error_invalid: "Código incorrecto. Verifícalo con tu responsable.",
+      gate_error_network: "No se pudo conectar con el servidor. Inténtalo de nuevo.",
+      gate_error_expired: "Código de acceso no válido o caducado. Inténtalo de nuevo.",
+      app_subtitle: "Seguimiento de clientes — upsell, riesgo de cancelación, atenciones particulares y pendientes legales/board",
+      whoami_label: "Eres",
+      agent_placeholder: "Tu nombre",
+      logout_title: "Cambiar código de acceso",
+      kpi_total: "Clientes en seguimiento",
+      kpi_upsell: "Upsell activo",
+      kpi_risk: "Riesgo de cancelación",
+      kpi_attn: "Atención particular",
+      kpi_pending: "Pendiente de actualización",
+      search_placeholder: "Buscar un cliente, un agente, un email, un n.º de cuenta…",
+      filter_brand_all: "Todas las marcas",
+      filter_upsell_all: "Upsell — todos",
+      filter_risk_all: "Riesgo de cancelación — todos",
+      filter_pending_all: "Pendiente — todos",
+      filter_status_open: "Casos activos",
+      filter_status_closed: "Casos cerrados",
+      filter_status_all: "Todos los casos",
+      mine_toggle: "👤 Mis clientes",
+      attn_toggle: "🚩 Solo atención",
+      add_btn: "+ Nuevo cliente",
+      th_client: "Cliente", th_account: "N.º de cuenta", th_brand: "Marca", th_package: "Paquete / Seguro",
+      th_agent: "Agente", th_upsell: "Upsell", th_risk: "Riesgo de cancelación", th_flag: "⚑",
+      th_pending: "Pendiente de actualización", th_next: "Próxima acción", th_updated: "Actualizado", th_comments: "Comentarios",
+      empty_none_title: "Aún no hay clientes en seguimiento.",
+      empty_none_hint: "Añade tu primer cliente con el botón «+ Nuevo cliente».",
+      empty_filtered_title: "Ningún cliente coincide con los filtros.",
+      empty_filtered_hint: "Ajusta la búsqueda o los filtros, o añade un nuevo cliente.",
+      drawer_new_title: "Nuevo cliente",
+      drawer_edit_prefix: "Editar — ",
+      f_name_label: "Nombre del cliente", f_name_placeholder: "Nombre Apellido",
+      f_email_label: "Email", f_email_placeholder: "cliente@ejemplo.com",
+      f_acct_label: "N.º de cuenta", f_acct_placeholder: "Ej. CIS-2026-00453",
+      f_brand_label: "Marca",
+      f_agent_label: "Agente asignado", f_agent_placeholder: "Nombre del agente",
+      f_package_label: "Paquete",
+      insurance_label: "Seguro contratado",
+      f_upsell_label: "Estado del upsell",
+      f_risk_label: "Riesgo de cancelación",
+      attention_label: "🚩 Atención particular",
+      attn_active_fallback: "Atención particular",
+      f_attnreason_label: "Motivo de la atención", f_attnreason_placeholder: "Ej. cliente difícil, VIP, disputa…",
+      f_pending_label: "Pendiente de actualización",
+      f_pendingnote_label: "Detalle del pendiente", f_pendingnote_placeholder: "Ej. anexo en revisión por el board",
+      f_nextdate_label: "Próxima acción — fecha",
+      f_nextnote_label: "Próxima acción — nota", f_nextnote_placeholder: "Ej. seguimiento a los 3 días",
+      f_notes_label: "Notas internas", f_notes_placeholder: "Historial, contexto, decisiones…",
+      btn_delete: "Eliminar", btn_cancel: "Cancelar", btn_save: "Guardar",
+      btn_close_case: "🔒 Cerrar caso", btn_reopen_case: "🔓 Reabrir",
+      closed_badge: "Cerrado",
+      title_edit: "Editar", title_delete: "Eliminar",
+      title_close_case: "Cerrar caso", title_reopen_case: "Reabrir caso",
+      title_attn_on: "Marcar atención particular",
+      confirm_delete: '¿Eliminar la ficha de "{name}"? Esta acción es definitiva.',
+      confirm_close: '¿Cerrar el caso de "{name}"? Podrás reabrirlo en cualquier momento.',
+      prompt_attn_reason: "Motivo de la atención particular (ej. VIP, disputa, cliente difícil):",
+      banner_offline: "⚠️ Conexión perdida: reintentando automáticamente…",
+      banner_examples: "💡 Datos de ejemplo mostrados para ilustrar la herramienta.",
+      btn_clear_examples: "Eliminar ejemplos",
+      no_name: "(sin nombre)", ex_tag: "ejemplo",
+      ins_on_prefix: "Asegurado · €", ins_on_suffix: "/mes", ins_off: "No asegurado",
+      meta_created: "Creado el ", meta_updated: " · última actualización ", meta_by: " por ",
+      pending_none: "—", pending_legal: "Legal", pending_board: "Board", pending_finance: "Finance",
+      pending_jobsearch: "Job Search", pending_other: "Otro",
+      upsell_none: "Ninguno", upsell_potential: "Potencial", upsell_in_progress: "En curso", upsell_won: "Conseguido ✓", upsell_lost: "Perdido",
+      risk_none: "Ninguno", risk_watch: "A vigilar", risk_at_risk: "En riesgo", risk_critical: "Crítico",
+      date_locale: "es-ES", rel_now: "ahora mismo", rel_h: " h", rel_j: " d"
+    }
+  };
+  var LOC = I18N[DESK] || I18N.fr;
+  function t(key) { var v = LOC[key]; if (v === undefined) v = I18N.fr[key]; return v === undefined ? key : v; }
+
+  function applyStaticI18n() {
+    document.getElementById("gateSubtitle").textContent = t("gate_subtitle");
+    document.getElementById("gateCode").placeholder = t("gate_code_placeholder");
+    document.getElementById("gateSubmit").textContent = t("gate_submit");
+    document.getElementById("gateHint").textContent = t("gate_hint");
+    document.getElementById("appSubtitle").textContent = t("app_subtitle");
+    document.getElementById("whoamiLabel").textContent = t("whoami_label");
+    document.getElementById("agentName").placeholder = t("agent_placeholder");
+    document.getElementById("logoutBtn").title = t("logout_title");
+    document.getElementById("kpiTotalLabel").textContent = t("kpi_total");
+    document.getElementById("kpiUpsellLabel").textContent = t("kpi_upsell");
+    document.getElementById("kpiRiskLabel").textContent = t("kpi_risk");
+    document.getElementById("kpiAttnLabel").textContent = t("kpi_attn");
+    document.getElementById("kpiPendingLabel").textContent = t("kpi_pending");
+    document.getElementById("searchBox").placeholder = t("search_placeholder");
+    document.getElementById("filterBrand").options[0].textContent = t("filter_brand_all");
+    document.getElementById("filterUpsell").options[0].textContent = t("filter_upsell_all");
+    document.getElementById("filterRisk").options[0].textContent = t("filter_risk_all");
+    document.getElementById("filterPending").options[0].textContent = t("filter_pending_all");
+    document.getElementById("filterStatusOpenOpt").textContent = t("filter_status_open");
+    document.getElementById("filterStatusClosedOpt").textContent = t("filter_status_closed");
+    document.getElementById("filterStatusAllOpt").textContent = t("filter_status_all");
+    document.getElementById("mineToggle").textContent = t("mine_toggle");
+    document.getElementById("attnToggle").textContent = t("attn_toggle");
+    document.getElementById("addBtn").textContent = t("add_btn");
+    document.getElementById("thClient").textContent = t("th_client");
+    document.getElementById("thAccount").textContent = t("th_account");
+    document.getElementById("thBrand").textContent = t("th_brand");
+    document.getElementById("thPackage").textContent = t("th_package");
+    document.getElementById("thAgent").textContent = t("th_agent");
+    document.getElementById("thUpsell").textContent = t("th_upsell");
+    document.getElementById("thRisk").textContent = t("th_risk");
+    document.getElementById("thFlag").textContent = t("th_flag");
+    document.getElementById("thPending").textContent = t("th_pending");
+    document.getElementById("thNext").textContent = t("th_next");
+    document.getElementById("thUpdated").textContent = t("th_updated");
+    document.getElementById("thComments").textContent = t("th_comments");
+    document.getElementById("lbl_name").textContent = t("f_name_label");
+    document.getElementById("f_name").placeholder = t("f_name_placeholder");
+    document.getElementById("lbl_email").textContent = t("f_email_label");
+    document.getElementById("f_email").placeholder = t("f_email_placeholder");
+    document.getElementById("lbl_acct").textContent = t("f_acct_label");
+    document.getElementById("f_acct").placeholder = t("f_acct_placeholder");
+    document.getElementById("lbl_brand").textContent = t("f_brand_label");
+    document.getElementById("lbl_agent").textContent = t("f_agent_label");
+    document.getElementById("f_agent").placeholder = t("f_agent_placeholder");
+    document.getElementById("lbl_package").textContent = t("f_package_label");
+    document.getElementById("lbl_insurance").textContent = t("insurance_label");
+    document.getElementById("lbl_upsell").textContent = t("f_upsell_label");
+    document.getElementById("lbl_risk").textContent = t("f_risk_label");
+    document.getElementById("lbl_attention").textContent = t("attention_label");
+    document.getElementById("lbl_attnreason").textContent = t("f_attnreason_label");
+    document.getElementById("f_attnreason").placeholder = t("f_attnreason_placeholder");
+    document.getElementById("lbl_pending").textContent = t("f_pending_label");
+    document.getElementById("lbl_pendingnote").textContent = t("f_pendingnote_label");
+    document.getElementById("f_pendingnote").placeholder = t("f_pendingnote_placeholder");
+    document.getElementById("lbl_nextdate").textContent = t("f_nextdate_label");
+    document.getElementById("lbl_nextnote").textContent = t("f_nextnote_label");
+    document.getElementById("f_nextnote").placeholder = t("f_nextnote_placeholder");
+    document.getElementById("lbl_notes").textContent = t("f_notes_label");
+    document.getElementById("f_notes").placeholder = t("f_notes_placeholder");
+    document.getElementById("deleteBtn").textContent = t("btn_delete");
+    document.getElementById("cancelBtn").textContent = t("btn_cancel");
+    document.getElementById("saveBtn").textContent = t("btn_save");
+    document.getElementById("filterStatus").value = "open";
+  }
+  applyStaticI18n();
+
   var BRANDS = { vac: "Vivez Au Canada", r2c: "Relocation2Canada", cp: "CanadaProcess", cis: "CanadaCIS", coj: "CanadaOpenJobs", cvs: "CanadaVisaServices" };
   var PACKAGES = { standard: { label: "Standard", premium: 59 }, premium: { label: "Premium", premium: 69 }, allinclusive: { label: "All-Inclusive", premium: 79 } };
   var UPSELL = {
-    none: { label: "Aucun", fg: "var(--neutral)", bg: "var(--neutral-soft)" },
-    potential: { label: "Potentiel", fg: "var(--info)", bg: "var(--info-soft)" },
-    in_progress: { label: "En cours", fg: "var(--gold)", bg: "var(--gold-soft)" },
-    won: { label: "Conclu ✓", fg: "var(--success)", bg: "var(--success-soft)" },
-    lost: { label: "Refusé", fg: "var(--text-faint)", bg: "var(--neutral-soft)" }
+    none: { label: t("upsell_none"), fg: "var(--neutral)", bg: "var(--neutral-soft)" },
+    potential: { label: t("upsell_potential"), fg: "var(--info)", bg: "var(--info-soft)" },
+    in_progress: { label: t("upsell_in_progress"), fg: "var(--gold)", bg: "var(--gold-soft)" },
+    won: { label: t("upsell_won"), fg: "var(--success)", bg: "var(--success-soft)" },
+    lost: { label: t("upsell_lost"), fg: "var(--text-faint)", bg: "var(--neutral-soft)" }
   };
   var RISK = {
-    none: { label: "Aucun", fg: "var(--success)", bg: "var(--success-soft)" },
-    watch: { label: "À surveiller", fg: "var(--gold)", bg: "var(--gold-soft)" },
-    at_risk: { label: "À risque", fg: "var(--warn)", bg: "var(--warn-soft)" },
-    critical: { label: "Critique", fg: "var(--danger)", bg: "var(--danger-soft)" }
+    none: { label: t("risk_none"), fg: "var(--success)", bg: "var(--success-soft)" },
+    watch: { label: t("risk_watch"), fg: "var(--gold)", bg: "var(--gold-soft)" },
+    at_risk: { label: t("risk_at_risk"), fg: "var(--warn)", bg: "var(--warn-soft)" },
+    critical: { label: t("risk_critical"), fg: "var(--danger)", bg: "var(--danger-soft)" }
   };
   var PENDING = {
-    none: { label: "—", fg: "var(--text-faint)", bg: "var(--neutral-soft)" },
-    legal: { label: "Legal", fg: "var(--info)", bg: "var(--info-soft)" },
-    board: { label: "Board", fg: "var(--accent)", bg: "var(--accent-soft)" },
-    finance: { label: "Finance", fg: "var(--gold)", bg: "var(--gold-soft)" },
-    other: { label: "Autre", fg: "var(--text-soft)", bg: "var(--neutral-soft)" }
+    none: { label: t("pending_none"), fg: "var(--text-faint)", bg: "var(--neutral-soft)" },
+    legal: { label: t("pending_legal"), fg: "var(--info)", bg: "var(--info-soft)" },
+    board: { label: t("pending_board"), fg: "var(--accent)", bg: "var(--accent-soft)" },
+    finance: { label: t("pending_finance"), fg: "var(--gold)", bg: "var(--gold-soft)" },
+    job_search: { label: t("pending_jobsearch"), fg: "var(--success)", bg: "var(--success-soft)" },
+    other: { label: t("pending_other"), fg: "var(--text-soft)", bg: "var(--neutral-soft)" }
   };
 
   function fillSelect(sel, map, withEmpty) {
@@ -363,25 +753,25 @@
   fillSelect(document.getElementById("f_upsell"), UPSELL, null);
   fillSelect(document.getElementById("f_risk"), RISK, null);
   fillSelect(document.getElementById("f_pending"), PENDING, null);
-  fillSelect(document.getElementById("filterBrand"), BRANDS, "Toutes les marques");
-  fillSelect(document.getElementById("filterUpsell"), UPSELL, "Upsell — tous");
-  fillSelect(document.getElementById("filterRisk"), RISK, "Risque présa — tous");
-  fillSelect(document.getElementById("filterPending"), PENDING, "En attente — tous");
+  fillSelect(document.getElementById("filterBrand"), BRANDS, t("filter_brand_all"));
+  fillSelect(document.getElementById("filterUpsell"), UPSELL, t("filter_upsell_all"));
+  fillSelect(document.getElementById("filterRisk"), RISK, t("filter_risk_all"));
+  fillSelect(document.getElementById("filterPending"), PENDING, t("filter_pending_all"));
 
   var state = { docs: [], code: null, online: true };
   var ui = { mine: false, attn: false, editingId: null, pollTimer: null };
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function todayIso() { return new Date().toISOString().slice(0, 10); }
-  function fmtDate(iso) { if (!iso) return ""; var d = new Date(iso); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" }); }
+  function fmtDate(iso) { if (!iso) return ""; var d = new Date(iso); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString(t("date_locale"), { day: "2-digit", month: "short" }); }
   function fmtRelative(iso) {
     if (!iso) return "—";
     var d = new Date(iso), now = new Date(), diffH = (now - d) / 3600000;
-    if (diffH < 1) return "à l'instant";
-    if (diffH < 24) return Math.round(diffH) + " h";
+    if (diffH < 1) return t("rel_now");
+    if (diffH < 24) return Math.round(diffH) + t("rel_h");
     var diffD = Math.round(diffH / 24);
-    if (diffD < 30) return diffD + " j";
-    return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "2-digit" });
+    if (diffD < 30) return diffD + t("rel_j");
+    return d.toLocaleDateString(t("date_locale"), { day: "2-digit", month: "short", year: "2-digit" });
   }
 
   // ---------------- API ----------------
@@ -402,7 +792,7 @@
     stopPolling();
     document.getElementById("app").hidden = true;
     document.getElementById("gate").hidden = false;
-    document.getElementById("gateError").textContent = "Code d'accès invalide ou expiré. Réessayez.";
+    document.getElementById("gateError").textContent = t("gate_error_expired");
   }
 
   // ---------------- gate / login ----------------
@@ -440,12 +830,12 @@
     fetch("/api/" + DESK + "/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: code }) })
       .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
       .then(function (res) {
-        if (!res.ok) { errEl.textContent = "Code incorrect. Vérifiez auprès de votre responsable."; return; }
+        if (!res.ok) { errEl.textContent = t("gate_error_invalid"); return; }
         state.code = code;
         try { localStorage.setItem(STORAGE_KEY, code); } catch (e) {}
         enterApp();
       })
-      .catch(function () { errEl.textContent = "Connexion au serveur impossible. Réessayez."; });
+      .catch(function () { errEl.textContent = t("gate_error_network"); });
   }
 
   document.getElementById("gateSubmit").addEventListener("click", submitCode);
@@ -495,8 +885,8 @@
     var el = document.getElementById("banners");
     var html = "";
     var hasExamples = state.docs.some(function (d) { return d.isExample; });
-    if (!state.online) html += '<div class="banner offline">⚠️ <span><strong>Connexion perdue :</strong> nouvelle tentative automatique en cours…</span></div>';
-    if (hasExamples) html += '<div class="banner">💡 <span><strong>Données d\'exemple</strong> affichées pour montrer l\'outil en action.</span><button class="btn ghost" id="clearExamplesBtn">Supprimer les exemples</button></div>';
+    if (!state.online) html += '<div class="banner offline">' + t("banner_offline") + "</div>";
+    if (hasExamples) html += '<div class="banner">' + t("banner_examples") + '<button class="btn ghost" id="clearExamplesBtn">' + t("btn_clear_examples") + "</button></div>";
     el.innerHTML = html;
     var btn = document.getElementById("clearExamplesBtn");
     if (btn) btn.addEventListener("click", clearExamples);
@@ -508,11 +898,12 @@
 
   // ---------------- KPIs ----------------
   function renderKpis(list) {
-    document.getElementById("kpiTotal").textContent = list.length;
-    document.getElementById("kpiUpsell").textContent = list.filter(function (d) { return d.upsell === "potential" || d.upsell === "in_progress"; }).length;
-    document.getElementById("kpiRisk").textContent = list.filter(function (d) { return d.risk === "watch" || d.risk === "at_risk" || d.risk === "critical"; }).length;
-    document.getElementById("kpiAttn").textContent = list.filter(function (d) { return d.attention; }).length;
-    document.getElementById("kpiPending").textContent = list.filter(function (d) { return d.pending && d.pending !== "none"; }).length;
+    var open = list.filter(function (d) { return !d.closed; });
+    document.getElementById("kpiTotal").textContent = open.length;
+    document.getElementById("kpiUpsell").textContent = open.filter(function (d) { return d.upsell === "potential" || d.upsell === "in_progress"; }).length;
+    document.getElementById("kpiRisk").textContent = open.filter(function (d) { return d.risk === "watch" || d.risk === "at_risk" || d.risk === "critical"; }).length;
+    document.getElementById("kpiAttn").textContent = open.filter(function (d) { return d.attention; }).length;
+    document.getElementById("kpiPending").textContent = open.filter(function (d) { return d.pending && d.pending !== "none"; }).length;
   }
 
   function applyFilters(list) {
@@ -521,8 +912,11 @@
     var upsell = document.getElementById("filterUpsell").value;
     var risk = document.getElementById("filterRisk").value;
     var pending = document.getElementById("filterPending").value;
+    var status = document.getElementById("filterStatus").value;
     var mineName = currentAgent().toLowerCase();
     return list.filter(function (d) {
+      if (status === "open" && d.closed) return false;
+      if (status === "closed" && !d.closed) return false;
       if (q) {
         var hay = ((d.name || "") + " " + (d.email || "") + " " + (d.accountNumber || "") + " " + (d.agent || "") + " " + (d.notes || "")).toLowerCase();
         if (hay.indexOf(q) === -1) return false;
@@ -555,36 +949,40 @@
     if (!state.docs.length) {
       tbody.innerHTML = "";
       empty.hidden = false;
-      empty.querySelector("div:nth-child(2)").innerHTML = "<strong>Aucun client suivi pour l'instant.</strong>";
-      empty.querySelector(".hint").textContent = "Ajoutez votre premier client avec le bouton « + Nouveau client ».";
+      empty.querySelector("div:nth-child(2)").innerHTML = "<strong>" + esc(t("empty_none_title")) + "</strong>";
+      empty.querySelector(".hint").textContent = t("empty_none_hint");
       return;
     }
     if (!list.length) {
       tbody.innerHTML = "";
       empty.hidden = false;
-      empty.querySelector("div:nth-child(2)").innerHTML = "<strong>Aucun client ne correspond aux filtres.</strong>";
-      empty.querySelector(".hint").textContent = "Ajustez la recherche ou les filtres, ou ajoutez un nouveau client.";
+      empty.querySelector("div:nth-child(2)").innerHTML = "<strong>" + esc(t("empty_filtered_title")) + "</strong>";
+      empty.querySelector(".hint").textContent = t("empty_filtered_hint");
       return;
     }
     empty.hidden = true;
 
     tbody.innerHTML = list.map(function (d) {
       var pkg = PACKAGES[d.package] || PACKAGES.standard;
-      var nextOverdue = d.nextActionDate && d.nextActionDate < todayIso();
+      var nextOverdue = d.nextActionDate && d.nextActionDate < todayIso() && !d.closed;
+      var closeTitle = d.closed ? t("title_reopen_case") : t("title_close_case");
+      var closeIcon = d.closed ? "🔓" : "🔒";
+      var closeAttr = d.closed ? "data-reopen" : "data-close";
       return (
-        '<tr data-id="' + esc(d.id) + '">' +
-        '<td class="client-cell"><div class="name" data-open="' + esc(d.id) + '">' + esc(d.name || "(sans nom)") + (d.isExample ? '<span class="ex-tag">exemple</span>' : "") + '</div><div class="sub">' + esc(d.email || "") + "</div></td>" +
+        '<tr data-id="' + esc(d.id) + '"' + (d.closed ? ' class="row-closed"' : "") + '>' +
+        '<td class="client-cell"><div class="name" data-open="' + esc(d.id) + '">' + esc(d.name || t("no_name")) + (d.isExample ? '<span class="ex-tag">' + esc(t("ex_tag")) + "</span>" : "") + (d.closed ? '<span class="closed-tag">' + esc(t("closed_badge")) + "</span>" : "") + '</div><div class="sub">' + esc(d.email || "") + "</div></td>" +
         '<td class="acct">' + esc(d.accountNumber || "—") + "</td>" +
         '<td class="brandtag">' + esc(BRANDS[d.brand] || "—") + "</td>" +
-        '<td><span class="pkgtag">' + esc(pkg.label) + '<span class="prem"><span class="ins-badge ' + (d.insurance ? "on" : "off") + '">' + (d.insurance ? "Assuré · €" + pkg.premium + "/mo" : "Non assuré") + "</span></span></span></td>" +
+        '<td><span class="pkgtag">' + esc(pkg.label) + '<span class="prem"><span class="ins-badge ' + (d.insurance ? "on" : "off") + '">' + (d.insurance ? esc(t("ins_on_prefix")) + pkg.premium + esc(t("ins_on_suffix")) : esc(t("ins_off"))) + "</span></span></span></td>" +
         "<td>" + esc(d.agent || "—") + "</td>" +
         "<td>" + pillSelect(d.id, "upsell", UPSELL, d.upsell) + "</td>" +
         "<td>" + pillSelect(d.id, "risk", RISK, d.risk) + "</td>" +
-        '<td><button class="attn-btn ' + (d.attention ? "on" : "") + '" data-attn="' + esc(d.id) + '" title="' + (d.attention ? esc(d.attentionReason || "Attention particulière") : "Marquer une attention particulière") + '">🚩</button></td>' +
+        '<td><button class="attn-btn ' + (d.attention ? "on" : "") + '" data-attn="' + esc(d.id) + '" title="' + (d.attention ? esc(d.attentionReason || t("attn_active_fallback")) : esc(t("title_attn_on"))) + '">🚩</button></td>' +
         "<td>" + pillSelect(d.id, "pending", PENDING, d.pending) + "</td>" +
         '<td class="next-action' + (nextOverdue ? " overdue" : "") + '">' + (d.nextActionDate ? fmtDate(d.nextActionDate) : "—") + (d.nextActionNote ? '<br><span style="color:var(--text-faint)">' + esc(d.nextActionNote) + "</span>" : "") + "</td>" +
         '<td class="updated">' + fmtRelative(d.updatedAt) + (d.updatedBy ? "<br>" + esc(d.updatedBy) : "") + "</td>" +
-        '<td><div class="rowactions"><button class="icon-btn" data-open="' + esc(d.id) + '" title="Modifier">✎</button><button class="icon-btn del" data-del="' + esc(d.id) + '" title="Supprimer">🗑</button></div></td>' +
+        '<td class="comments-cell" title="' + esc(d.notes || "") + '">' + esc(d.notes || "") + "</td>" +
+        '<td><div class="rowactions"><button class="icon-btn' + (d.closed ? " reopen" : "") + '" ' + closeAttr + '="' + esc(d.id) + '" title="' + esc(closeTitle) + '">' + closeIcon + '</button><button class="icon-btn" data-open="' + esc(d.id) + '" title="' + esc(t("title_edit")) + '">✎</button><button class="icon-btn del" data-del="' + esc(d.id) + '" title="' + esc(t("title_delete")) + '">🗑</button></div></td>' +
         "</tr>"
       );
     }).join("");
@@ -603,7 +1001,21 @@
         ev.stopPropagation();
         var id = el.getAttribute("data-del");
         var d = state.docs.filter(function (x) { return x.id === id; })[0];
-        if (confirm('Supprimer la fiche de "' + (d ? d.name : "ce client") + '" ? Cette action est définitive.')) deleteDoc(id);
+        if (confirm(t("confirm_delete").replace("{name}", d ? d.name : ""))) deleteDoc(id);
+      });
+    });
+    tbody.querySelectorAll("[data-close]").forEach(function (el) {
+      el.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var id = el.getAttribute("data-close");
+        var d = state.docs.filter(function (x) { return x.id === id; })[0];
+        if (confirm(t("confirm_close").replace("{name}", d ? d.name : ""))) closeCase(id);
+      });
+    });
+    tbody.querySelectorAll("[data-reopen]").forEach(function (el) {
+      el.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        reopenCase(el.getAttribute("data-reopen"));
       });
     });
     tbody.querySelectorAll("[data-attn]").forEach(function (el) {
@@ -614,7 +1026,7 @@
         if (!d) return;
         if (d.attention) { updateDoc(id, { attention: false }); }
         else {
-          var reason = prompt("Motif de l'attention particulière (ex. VIP, litige, client difficile) :", d.attentionReason || "");
+          var reason = prompt(t("prompt_attn_reason"), d.attentionReason || "");
           if (reason === null) return;
           updateDoc(id, { attention: true, attentionReason: reason });
         }
@@ -639,9 +1051,11 @@
     data.updatedBy = currentAgent() || "Agent";
     api("/clients", { method: "POST", body: JSON.stringify(data) }).then(function () { refresh(); }).catch(function (e) { if (e.message !== "unauthorized") refresh(); });
   }
+  function closeCase(id) { updateDoc(id, { closed: true, closedAt: new Date().toISOString() }); }
+  function reopenCase(id) { updateDoc(id, { closed: false, closedAt: "" }); }
 
   // ---------------- filters wiring ----------------
-  ["searchBox", "filterBrand", "filterUpsell", "filterRisk", "filterPending"].forEach(function (id) {
+  ["searchBox", "filterBrand", "filterUpsell", "filterRisk", "filterPending", "filterStatus"].forEach(function (id) {
     document.getElementById(id).addEventListener("input", renderAll);
     document.getElementById(id).addEventListener("change", renderAll);
   });
@@ -663,8 +1077,14 @@
   function openDrawer(id) {
     ui.editingId = id || null;
     var d = id ? state.docs.filter(function (x) { return x.id === id; })[0] : null;
-    document.getElementById("drawerTitle").textContent = d ? "Modifier — " + (d.name || "") : "Nouveau client";
+    document.getElementById("drawerTitle").textContent = d ? t("drawer_edit_prefix") + (d.name || "") : t("drawer_new_title");
     document.getElementById("deleteBtn").hidden = !d;
+    var closeBtn = document.getElementById("closeCaseBtn");
+    closeBtn.hidden = !d;
+    if (d) {
+      closeBtn.textContent = d.closed ? t("btn_reopen_case") : t("btn_close_case");
+      closeBtn.classList.toggle("danger-outline", !d.closed);
+    }
     document.getElementById("f_name").value = d ? (d.name || "") : "";
     document.getElementById("f_email").value = d ? (d.email || "") : "";
     document.getElementById("f_acct").value = d ? (d.accountNumber || "") : "";
@@ -681,7 +1101,9 @@
     document.getElementById("f_nextdate").value = d ? (d.nextActionDate || "") : "";
     document.getElementById("f_nextnote").value = d ? (d.nextActionNote || "") : "";
     document.getElementById("f_notes").value = d ? (d.notes || "") : "";
-    document.getElementById("metaNote").textContent = d ? ("Créé le " + fmtDate(d.createdAt) + " · dernière MAJ " + fmtRelative(d.updatedAt) + (d.updatedBy ? " par " + d.updatedBy : "")) : "";
+    var meta = d ? (t("meta_created") + fmtDate(d.createdAt) + t("meta_updated") + fmtRelative(d.updatedAt) + (d.updatedBy ? t("meta_by") + d.updatedBy : "")) : "";
+    if (d && d.closed) meta += " · " + t("closed_badge") + (d.closedAt ? " " + fmtDate(d.closedAt) : "");
+    document.getElementById("metaNote").textContent = meta;
     toggleAttnReason(); togglePendingNote();
     drawer.classList.add("open"); scrim.classList.add("open");
     document.getElementById("f_name").focus();
@@ -719,7 +1141,14 @@
   document.getElementById("deleteBtn").addEventListener("click", function () {
     if (!ui.editingId) return;
     var d = state.docs.filter(function (x) { return x.id === ui.editingId; })[0];
-    if (confirm('Supprimer la fiche de "' + (d ? d.name : "ce client") + '" ? Cette action est définitive.')) { deleteDoc(ui.editingId); closeDrawer(); }
+    if (confirm(t("confirm_delete").replace("{name}", d ? d.name : ""))) { deleteDoc(ui.editingId); closeDrawer(); }
+  });
+  document.getElementById("closeCaseBtn").addEventListener("click", function () {
+    if (!ui.editingId) return;
+    var d = state.docs.filter(function (x) { return x.id === ui.editingId; })[0];
+    if (!d) return;
+    if (d.closed) { reopenCase(ui.editingId); closeDrawer(); }
+    else if (confirm(t("confirm_close").replace("{name}", d.name || ""))) { closeCase(ui.editingId); closeDrawer(); }
   });
   document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && drawer.classList.contains("open")) closeDrawer(); });
 

@@ -31,15 +31,17 @@ const COLUMNS = [
 "nextActionDate",
 "nextActionNote",
 "notes",
+"closed",
+"closedAt",
 "createdAt",
 "updatedAt",
 "updatedBy",
 ];
 
-const BOOLEAN_COLUMNS = new Set(["isExample", "insurance", "attention"]);
+const BOOLEAN_COLUMNS = new Set(["isExample", "insurance", "attention", "closed"]);
 
 const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-const LAST_COL_LETTER = String.fromCharCode("A".charCodeAt(0) + COLUMNS.length - 1); // 21 cols -> "U"
+const LAST_COL_LETTER = String.fromCharCode("A".charCodeAt(0) + COLUMNS.length - 1); // 23 cols -> "W"
 
 let sheetsClientPromise = null;
 function getSheetsClient() {
