@@ -418,7 +418,8 @@
       pending_none: "—", pending_legal: "Legal", pending_board: "Board", pending_finance: "Finance",
       pending_jobsearch: "Job Search", pending_other: "Autre",
       upsell_none: "Aucun", upsell_potential: "Potentiel", upsell_in_progress: "En cours", upsell_won: "Conclu ✓", upsell_lost: "Refusé",
-      risk_none: "Aucun", risk_watch: "À surveiller", risk_at_risk: "À risque", risk_critical: "Critique",
+      risk_na: "N/A (10 j)", risk_none: "Aucun", risk_watch: "À surveiller", risk_at_risk: "À risque", risk_critical: "Critique",
+      risk_na_expired_title: "Plus de 10 jours en N/A — merci de choisir un vrai niveau de risque",
       date_locale: "fr-FR", rel_now: "à l'instant", rel_h: " h", rel_j: " j"
     },
     en: {
@@ -493,7 +494,8 @@
       pending_none: "—", pending_legal: "Legal", pending_board: "Board", pending_finance: "Finance",
       pending_jobsearch: "Job Search", pending_other: "Other",
       upsell_none: "None", upsell_potential: "Potential", upsell_in_progress: "In progress", upsell_won: "Won ✓", upsell_lost: "Lost",
-      risk_none: "None", risk_watch: "Watch", risk_at_risk: "At risk", risk_critical: "Critical",
+      risk_na: "N/A (10 days)", risk_none: "None", risk_watch: "Watch", risk_at_risk: "At risk", risk_critical: "Critical",
+      risk_na_expired_title: "Over 10 days on N/A — please pick an actual risk level",
       date_locale: "en-US", rel_now: "just now", rel_h: "h", rel_j: "d"
     },
     it: {
@@ -568,7 +570,8 @@
       pending_none: "—", pending_legal: "Legal", pending_board: "Board", pending_finance: "Finance",
       pending_jobsearch: "Job Search", pending_other: "Altro",
       upsell_none: "Nessuno", upsell_potential: "Potenziale", upsell_in_progress: "In corso", upsell_won: "Concluso ✓", upsell_lost: "Perso",
-      risk_none: "Nessuno", risk_watch: "Da monitorare", risk_at_risk: "A rischio", risk_critical: "Critico",
+      risk_na: "N/D (10 gg)", risk_none: "Nessuno", risk_watch: "Da monitorare", risk_at_risk: "A rischio", risk_critical: "Critico",
+      risk_na_expired_title: "Più di 10 giorni in N/D — scegliere un livello di rischio reale",
       date_locale: "it-IT", rel_now: "adesso", rel_h: " h", rel_j: " g"
     },
     es: {
@@ -643,7 +646,8 @@
       pending_none: "—", pending_legal: "Legal", pending_board: "Board", pending_finance: "Finance",
       pending_jobsearch: "Job Search", pending_other: "Otro",
       upsell_none: "Ninguno", upsell_potential: "Potencial", upsell_in_progress: "En curso", upsell_won: "Conseguido ✓", upsell_lost: "Perdido",
-      risk_none: "Ninguno", risk_watch: "A vigilar", risk_at_risk: "En riesgo", risk_critical: "Crítico",
+      risk_na: "N/D (10 días)", risk_none: "Ninguno", risk_watch: "A vigilar", risk_at_risk: "En riesgo", risk_critical: "Crítico",
+      risk_na_expired_title: "Más de 10 días en N/D — por favor elige un nivel de riesgo real",
       date_locale: "es-ES", rel_now: "ahora mismo", rel_h: " h", rel_j: " d"
     }
   };
@@ -728,11 +732,20 @@
     lost: { label: t("upsell_lost"), fg: "var(--text-faint)", bg: "var(--neutral-soft)" }
   };
   var RISK = {
+    na: { label: t("risk_na"), fg: "var(--neutral)", bg: "var(--neutral-soft)" },
     none: { label: t("risk_none"), fg: "var(--success)", bg: "var(--success-soft)" },
     watch: { label: t("risk_watch"), fg: "var(--gold)", bg: "var(--gold-soft)" },
     at_risk: { label: t("risk_at_risk"), fg: "var(--warn)", bg: "var(--warn-soft)" },
     critical: { label: t("risk_critical"), fg: "var(--danger)", bg: "var(--danger-soft)" }
   };
+  // "N/A" is only meant to cover a client's first 10 days (too new to assess
+  // retention risk yet). Past that, it's flagged so an agent picks a real
+  // value — it does NOT auto-change the stored data, just the display.
+  function isRiskNaExpired(d) {
+    if (!d || d.risk !== "na" || !d.createdAt) return false;
+    var ms = new Date() - new Date(d.createdAt);
+    return ms > 10 * 24 * 3600 * 1000;
+  }
   var PENDING = {
     none: { label: t("pending_none"), fg: "var(--text-faint)", bg: "var(--neutral-soft)" },
     legal: { label: t("pending_legal"), fg: "var(--info)", bg: "var(--info-soft)" },
@@ -901,7 +914,7 @@
     var open = list.filter(function (d) { return !d.closed; });
     document.getElementById("kpiTotal").textContent = open.length;
     document.getElementById("kpiUpsell").textContent = open.filter(function (d) { return d.upsell === "potential" || d.upsell === "in_progress"; }).length;
-    document.getElementById("kpiRisk").textContent = open.filter(function (d) { return d.risk === "watch" || d.risk === "at_risk" || d.risk === "critical"; }).length;
+    document.getElementById("kpiRisk").textContent = open.filter(function (d) { return d.risk === "watch" || d.risk === "at_risk" || d.risk === "critical" || isRiskNaExpired(d); }).length;
     document.getElementById("kpiAttn").textContent = open.filter(function (d) { return d.attention; }).length;
     document.getElementById("kpiPending").textContent = open.filter(function (d) { return d.pending && d.pending !== "none"; }).length;
   }
@@ -931,12 +944,14 @@
     }).sort(function (a, b) { return (b.updatedAt || "").localeCompare(a.updatedAt || ""); });
   }
 
-  function pillSelect(id, field, map, value) {
+  function pillSelect(id, field, map, value, styleOverride) {
     var v = map[value] ? value : "none";
     var conf = map[v];
-    var style = "color:" + conf.fg + ";background:" + conf.bg + ";";
+    var fg = styleOverride ? styleOverride.fg : conf.fg;
+    var bg = styleOverride ? styleOverride.bg : conf.bg;
+    var style = "color:" + fg + ";background:" + bg + ";";
     var opts = Object.keys(map).map(function (k) { return '<option value="' + k + '"' + (k === v ? " selected" : "") + ">" + map[k].label + "</option>"; }).join("");
-    return '<select class="pill-select" style="' + style + '" data-id="' + esc(id) + '" data-field="' + field + '">' + opts + "</select>";
+    return '<select class="pill-select" style="' + style + '" data-id="' + esc(id) + '" data-field="' + field + '"' + (styleOverride ? ' title="' + esc(t("risk_na_expired_title")) + '"' : "") + '>' + opts + "</select>";
   }
 
   function renderAll() {
@@ -976,7 +991,7 @@
         '<td><span class="pkgtag">' + esc(pkg.label) + '<span class="prem"><span class="ins-badge ' + (d.insurance ? "on" : "off") + '">' + (d.insurance ? esc(t("ins_on_prefix")) + pkg.premium + esc(t("ins_on_suffix")) : esc(t("ins_off"))) + "</span></span></span></td>" +
         "<td>" + esc(d.agent || "—") + "</td>" +
         "<td>" + pillSelect(d.id, "upsell", UPSELL, d.upsell) + "</td>" +
-        "<td>" + pillSelect(d.id, "risk", RISK, d.risk) + "</td>" +
+        "<td>" + pillSelect(d.id, "risk", RISK, d.risk, isRiskNaExpired(d) ? { fg: "var(--warn)", bg: "var(--warn-soft)" } : null) + "</td>" +
         '<td><button class="attn-btn ' + (d.attention ? "on" : "") + '" data-attn="' + esc(d.id) + '" title="' + (d.attention ? esc(d.attentionReason || t("attn_active_fallback")) : esc(t("title_attn_on"))) + '">🚩</button></td>' +
         "<td>" + pillSelect(d.id, "pending", PENDING, d.pending) + "</td>" +
         '<td class="next-action' + (nextOverdue ? " overdue" : "") + '">' + (d.nextActionDate ? fmtDate(d.nextActionDate) : "—") + (d.nextActionNote ? '<br><span style="color:var(--text-faint)">' + esc(d.nextActionNote) + "</span>" : "") + "</td>" +
@@ -1093,7 +1108,7 @@
     document.getElementById("f_package").value = d ? (d.package || "standard") : "standard";
     switchSet(document.getElementById("f_insurance"), d ? !!d.insurance : false);
     document.getElementById("f_upsell").value = d ? (d.upsell || "none") : "none";
-    document.getElementById("f_risk").value = d ? (d.risk || "none") : "none";
+    document.getElementById("f_risk").value = d ? (d.risk || "none") : "na";
     switchSet(document.getElementById("f_attention"), d ? !!d.attention : false);
     document.getElementById("f_attnreason").value = d ? (d.attentionReason || "") : "";
     document.getElementById("f_pending").value = d ? (d.pending || "none") : "none";
