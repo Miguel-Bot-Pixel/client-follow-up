@@ -16,7 +16,7 @@
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
-const { readClients, writeClients } = require("./sheets");
+const { readClients, mutateClients } = require("./sheets");
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -87,18 +87,23 @@ app.get("/api/:desk/clients", deskAuth, async (req, res) => {
   }
 });
 
+// NOTE: create/update/delete all go through mutateClients (sheets.js),
+// which queues the whole read -> modify -> write cycle per desk. This is
+// what prevents two agents saving around the same time from clobbering
+// each other's data (see sheets.js for the full explanation).
 app.post("/api/:desk/clients", deskAuth, async (req, res) => {
   const desk = req.params.desk;
   try {
-    const clients = await readClients(desk);
-    const now = new Date().toISOString();
-    const record = Object.assign({}, req.body, {
-      id: crypto.randomUUID(),
-      createdAt: now,
-      updatedAt: now,
+    const record = await mutateClients(desk, (clients) => {
+      const now = new Date().toISOString();
+      const rec = Object.assign({}, req.body, {
+        id: crypto.randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+      });
+      clients.push(rec);
+      return { clients, result: rec };
     });
-    clients.push(record);
-    await writeClients(desk, clients);
     res.status(201).json(record);
   } catch (e) {
     console.error("write_failed", e);
@@ -109,14 +114,16 @@ app.post("/api/:desk/clients", deskAuth, async (req, res) => {
 app.patch("/api/:desk/clients/:id", deskAuth, async (req, res) => {
   const desk = req.params.desk;
   try {
-    const clients = await readClients(desk);
-    const idx = clients.findIndex((c) => c.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: "not_found" });
-    clients[idx] = Object.assign({}, clients[idx], req.body, {
-      updatedAt: new Date().toISOString(),
+    const updated = await mutateClients(desk, (clients) => {
+      const idx = clients.findIndex((c) => c.id === req.params.id);
+      if (idx === -1) return { clients, result: null };
+      clients[idx] = Object.assign({}, clients[idx], req.body, {
+        updatedAt: new Date().toISOString(),
+      });
+      return { clients, result: clients[idx] };
     });
-    await writeClients(desk, clients);
-    res.json(clients[idx]);
+    if (!updated) return res.status(404).json({ error: "not_found" });
+    res.json(updated);
   } catch (e) {
     console.error("write_failed", e);
     res.status(500).json({ error: "write_failed" });
@@ -126,11 +133,12 @@ app.patch("/api/:desk/clients/:id", deskAuth, async (req, res) => {
 app.delete("/api/:desk/clients/:id", deskAuth, async (req, res) => {
   const desk = req.params.desk;
   try {
-    let clients = await readClients(desk);
-    const before = clients.length;
-    clients = clients.filter((c) => c.id !== req.params.id);
-    if (clients.length === before) return res.status(404).json({ error: "not_found" });
-    await writeClients(desk, clients);
+    const deleted = await mutateClients(desk, (clients) => {
+      const before = clients.length;
+      const filtered = clients.filter((c) => c.id !== req.params.id);
+      return { clients: filtered, result: filtered.length !== before };
+    });
+    if (!deleted) return res.status(404).json({ error: "not_found" });
     res.status(204).end();
   } catch (e) {
     console.error("write_failed", e);

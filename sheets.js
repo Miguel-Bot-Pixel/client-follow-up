@@ -133,4 +133,52 @@ requestBody: { values: clients.map(clientToRow) },
 return writeQueues[desk];
 }
 
-module.exports = { readClients, writeClients, COLUMNS };
+// ---------------------------------------------------------------------
+// mutateClients — the fix for the "two agents save at once, one loses
+// their data" bug.
+//
+// Every create/update/delete works by reading the WHOLE tab, changing it
+// in memory, then rewriting the WHOLE tab. `writeQueues` above only
+// serializes the final write. It does NOT serialize the read that happens
+// before it. So two requests that arrive close together can both read the
+// same "before" snapshot, each add their own change to their own copy,
+// and then write one after another — the second write completely
+// replaces the sheet with a version that never saw the first request's
+// change. That's a classic lost-update race, and it's what silently ate
+// data when two agents saved around the same time.
+//
+// The fix: queue the ENTIRE read -> modify -> write cycle per desk, not
+// just the write. `mutate(clients)` only runs once every earlier queued
+// operation for that desk has fully finished (read AND write), so it
+// always starts from the latest saved state and nothing gets clobbered.
+//
+// `mutate` receives the current array of clients and must return either
+// the new array directly, or `{ clients, result }` if the caller needs a
+// return value (e.g. the created/updated record, or whether a delete
+// found anything). mutateClients resolves to that `result` (or undefined).
+const deskMutationQueues = {};
+function mutateClients(desk, mutate) {
+const prev = deskMutationQueues[desk] || Promise.resolve();
+const run = prev.then(
+() => runMutation(desk, mutate),
+() => runMutation(desk, mutate) // still run even if the previous op failed
+);
+// Keep the chain alive for future ops regardless of this op's outcome,
+// without swallowing the error for THIS call's caller (handled below).
+deskMutationQueues[desk] = run.then(
+() => undefined,
+() => undefined
+);
+return run;
+}
+
+async function runMutation(desk, mutate) {
+const clients = await readClients(desk);
+const out = await mutate(clients);
+const newClients = Array.isArray(out) ? out : out.clients;
+const result = Array.isArray(out) ? undefined : out.result;
+await writeClients(desk, newClients);
+return result;
+}
+
+module.exports = { readClients, writeClients, mutateClients, COLUMNS };
